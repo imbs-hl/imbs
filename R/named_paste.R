@@ -22,6 +22,7 @@ named_paste <- function(..., sep = " ") {
 }
 
 ##' @rdname named_paste
+##' @export
 named_paste0 <- function(..., sep = "") {
   named_paste(..., sep = sep)
 }
