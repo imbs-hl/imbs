@@ -34,8 +34,8 @@ named_paste0 <- function(..., sep = "") {
 ##' @return Named vector of concatenated file names.
 ##' @examples 
 ##' named_file_path("home", 
-##'                 c(wright = "myWork", schillert = "mywork"), 
-##'                 "beratungen")
+##'                 c(homer = "projects", marge = "work"), 
+##'                 "doo")
 ##' @export
 named_file_path <- function(..., sep = .Platform$file.sep) {
   named_paste(..., sep = sep)
