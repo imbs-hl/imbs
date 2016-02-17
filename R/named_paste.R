@@ -12,14 +12,30 @@
 named_paste <- function(..., sep = " ") {
   args <- list(...)
   result <- paste(..., sep = sep)
-  long_idx <- which(sapply(args, length) > 1)
-  names(result) <- names(args[[long_idx[1]]])
-  
+  ## Check for multiple part with more than one element
+  n_el <- sapply(args, length)
+  long_idx <- which(n_el > 1)
+    
   if (length(long_idx) > 1) {
-    warning("More than one argument with length >1 found, using names of the first argument.")
+    ## Compare names of multiple element parts
+    nms_raw <- lapply(args[long_idx], names)
+    nms <- nms_raw[!sapply(nms_raw, is.null)]
+    uni_nms <- unique(nms)
+
+    if (length(uni_nms) > 1) {
+      print(nms)
+      stop('Names do not match')
+    } else {
+      names(result) <- unlist(uni_nms)
+      return(result)
+    }
+    names(result)
+    return(result)
   }
-  result
+   result
 }
+
+
 
 ##' @rdname named_paste
 ##' @export
