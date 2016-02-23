@@ -15,8 +15,7 @@ named_paste <- function(..., sep = " ") {
   ## Check for multiple part with more than one element
   n_el <- sapply(args, length)
   long_idx <- which(n_el > 1)
-    
-  if (length(long_idx) > 1) {
+    if (length(long_idx) > 1) {
     ## Compare names of multiple element parts
     nms_raw <- lapply(args[long_idx], names)
     nms <- nms_raw[!sapply(nms_raw, is.null)]
@@ -31,6 +30,13 @@ named_paste <- function(..., sep = " ") {
     }
     names(result)
     return(result)
+  } else {
+    if (length(long_idx) == 1){
+      names(result) <- names(unlist(args[long_idx]))  
+      return(result)
+    } else {
+      warning('No names specified')
+    }
   }
    result
 }
