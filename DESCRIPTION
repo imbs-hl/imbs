@@ -1,6 +1,6 @@
 Package: imbs
 Title: Collection of functions used at the IMBS
-Version: 0.0.7
+Version: 0.0.8
 Authors@R: "Arne Schillert <arne.schillert@imbs.uni-luebeck.de> [aut, cre]"
 Description: A set of functions, which proved useful for all kinds of work at
     the IMBS
