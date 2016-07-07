@@ -22,3 +22,27 @@ verbatimize <- function(x, sep = ', '){
     paste(verb, collapse = sep)
 
 }
+
+
+
+#' Emulate Perl's \code{qw} (quoted words) function
+#' 
+#' 
+#' Hadley's solution on stackoverflow:
+#' \link{http://stackoverflow.com/questions/520810/does-r-have-quote-like-operators-like-perls-qw}
+#' 
+#' 
+#'
+#' @param ... Objects to be treated as characters
+#'
+#' @return Character vector
+#' @export
+#'
+#' @examples 
+#' qw(a, b, c)
+#' qw(1, a, 4)
+#' 
+qw <- function(...) {
+  sapply(match.call()[-1], deparse)
+}
+
