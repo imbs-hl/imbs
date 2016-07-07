@@ -12,7 +12,7 @@ named_paste0(..., sep = "")
 \arguments{
 \item{...}{one or more R objects, to be converted to character vectors.}
 
-\item{sep}{a character string to separate the terms.}
+\item{sep}{a character string to separate the items.}
 }
 \value{
 Named vector of concatenated values.
