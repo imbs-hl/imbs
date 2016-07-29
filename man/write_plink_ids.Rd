@@ -4,14 +4,17 @@
 \alias{write_plink_ids}
 \title{Write SNP or sample IDs to file}
 \usage{
-write_plink_ids(ids, file, sample = TRUE)
+write_plink_ids(ids, file, update, sample = TRUE)
 }
 \arguments{
 \item{ids}{Vector of SNP or Sample IDs}
 
 \item{file}{File name to write to}
 
-\item{sample}{Logical. Should be TRUE for samples and FALSE for SNPs}
+\item{update}{Logical, Default is FALSE. Skip writing file if it exists}
+
+\item{sample}{Logical. Should be TRUE for samples (the default) and FALSE for
+SNPs}
 }
 \description{
 Write SNP or sample IDs to file
