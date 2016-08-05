@@ -217,24 +217,26 @@ ex2pdf <- function(sheets,
       
       # clean up
       if(clean) {
-        pattern <- if(length(cleanExt)) {
+        rmFiles <- if(length(cleanExt)) {
           # find all files with specified file extension
-          paste0("[", 
+          pattern <- paste0("[", 
                  paste(basename(tools::file_path_sans_ext(texs)), 
                        collapse = "|"), 
                  "]\\.[", paste(cleanExt, collapse = "|"), "]*$")
+          list.files(path = outDir, 
+                     pattern = pattern,
+                     full.names = TRUE,
+                     recursive = TRUE,
+                     ignore.case = TRUE)
         } else {
           # find all files but PDF files
-          paste0("[", 
-                 paste(basename(tools::file_path_sans_ext(texs)), 
-                       collapse = "|"), 
-                 "]\\.[^pdf]*$")
+          grep(pattern = ".*(?<!pdf)$", 
+               list.files(path = outDir, 
+                          full.names = TRUE,
+                          recursive = TRUE),
+               perl = TRUE,
+               value = TRUE)
         }
-        rmFiles <- list.files(path = outDir, 
-                              pattern = pattern,
-                              full.names = TRUE,
-                              recursive = TRUE,
-                              ignore.case = TRUE)
         unlink(rmFiles)
       }
       
