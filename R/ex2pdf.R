@@ -232,8 +232,9 @@ ex2pdf <- function(sheets,
           # find all files but PDF files
           grep(pattern = ".*(?<!pdf)$", 
                list.files(path = outDir, 
-                          full.names = TRUE,
-                          recursive = TRUE),
+                          pattern = paste(basename(tools::file_path_sans_ext(texs)),
+                                          collapse = "|"), 
+                          full.names = TRUE, recursive = TRUE), 
                perl = TRUE,
                value = TRUE)
         }
