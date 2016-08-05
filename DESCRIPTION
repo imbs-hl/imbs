@@ -6,7 +6,7 @@ Description: A set of functions, which proved useful for all kinds of work at
     the IMBS
 Depends:
     R (>= 3.0.2)
-License: What license is it under?
+License: MIT + file LICENSE
 LazyData: true
 RoxygenNote: 5.0.1
 Imports: checkmate,
