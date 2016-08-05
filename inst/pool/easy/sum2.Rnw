@@ -1,0 +1,43 @@
+<<echo=FALSE, results='hide'>>=
+## QUESTION/ANSWER GENERATION
+a <- round(runif(1), digits = 2)
+b <- round(runif(1), digits = 2)
+@
+
+\begin{question}
+{Two reals}
+  Give the solutions of
+  \begin{answerlist}
+    \item{
+      $\Sexpr{a}+\Sexpr{b}$.
+    }
+    \item{
+      $\Sexpr{a}-\Sexpr{b}$.
+    }
+    \item{
+      $\Sexpr{a}\cdot\Sexpr{b}$.
+    }
+    \item{
+      $\frac{\Sexpr{a}}{\Sexpr{b}}$.
+    }
+  \end{answerlist}
+\end{question}
+
+\begin{solution}
+{Two reals}
+  The solutions are
+  \begin{answerlist}
+    \item{
+      $\Sexpr{a}+\Sexpr{b}=\Sexpr{a+b}$.
+    }
+    \item{
+      $\Sexpr{a}-\Sexpr{b}=\Sexpr{a-b}$.
+    }
+    \item{
+      $\Sexpr{a}\cdot\Sexpr{b}=\Sexpr{a*b}$.
+    }
+    \item{
+      $\frac{\Sexpr{a}}{\Sexpr{b}}=\Sexpr{a/b}$.
+    }
+  \end{answerlist}
+\end{solution}
