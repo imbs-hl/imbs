@@ -14,7 +14,7 @@ Character vector
 }
 \description{
 Hadley's solution on stackoverflow:
-\link{http://stackoverflow.com/questions/520810/does-r-have-quote-like-operators-like-perls-qw}
+\url{http://stackoverflow.com/questions/520810/does-r-have-quote-like-operators-like-perls-qw}
 }
 \examples{
 qw(a, b, c)
