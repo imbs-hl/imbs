@@ -25,8 +25,8 @@
 #'                    Path of the directory storing the exercise files.
 #' @param templates   [\code{character}]\cr
 #'                    Path of template files. Each file must follow the 
-#'                    \code{\link[brew]{brew}} specifications. Each template will be 
-#'                    brewed, knited and compiled into one PDF.
+#'                    \code{\link[brew]{brew}} specifications. Each template 
+#'                    will be brewed, knited and compiled into one single PDF.
 #' @param outDir      [\code{string}]\cr
 #'                    Path of the output directory. Default is the current 
 #'                    working directory.
@@ -58,6 +58,10 @@
 #'
 #' @return Invisible \code{character} with path of generated PDF files.
 #' @export
+#' 
+#' @details Examples of templates are installed in 
+#' \code{systemfile("templates", package = "imbs)}. Examples of exercises and 
+#' solutions are installed in \code{systemfile("templates", package = "imbs)}.
 #' 
 #' @author Damian Gola, \email{gola@@imbs.uni-luebeck.de}
 #'

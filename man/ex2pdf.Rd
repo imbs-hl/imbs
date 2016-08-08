@@ -33,8 +33,8 @@ Path of the directory storing the exercise files.}
 
 \item{templates}{[\code{character}]\cr
 Path of template files. Each file must follow the 
-\code{\link[brew]{brew}} specifications. Each template will be 
-brewed, knited and compiled into one PDF.}
+\code{\link[brew]{brew}} specifications. Each template 
+will be brewed, knited and compiled into one single PDF.}
 
 \item{outDir}{[\code{string}]\cr
 Path of the output directory. Default is the current 
@@ -76,6 +76,11 @@ Invisible \code{character} with path of generated PDF files.
 \description{
 Automatic generation of exercise sheets and exams in PDF format,
 inspired by the \code{exams} package.
+}
+\details{
+Examples of templates are installed in 
+\code{systemfile("templates", package = "imbs)}. Examples of exercises and 
+solutions are installed in \code{systemfile("templates", package = "imbs)}.
 }
 \examples{
 \dontrun{
