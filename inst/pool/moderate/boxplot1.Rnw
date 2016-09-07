@@ -1,0 +1,76 @@
+\begin{question}
+{Boxplots}
+  Load the \verb+iris+ dataset in \verb+R+ and create the following plots:
+  \begin{answerlist}
+    \item{
+      Boxplot of \verb+Sepal.Length+ by \verb+Species+.
+    }
+    \item{
+      Boxplot of \verb+Sepal.Width+ by \verb+Species+.
+    }
+    \item{
+      Boxplot of \verb+Petal.Length+ by \verb+Species+.
+    }
+    \item{
+      Boxplot of \verb+Petal.Width+ by \verb+Species+.
+    }
+  \end{answerlist}
+\end{question}
+
+\begin{solution}
+{Boxplots}
+  \begin{answerlist}
+    \item{
+<<boxplots1-a, echo=TRUE, results='hide', eval=FALSE>>=
+ggplot(iris) + geom_boxplot(aes(y=Sepal.Length, x = Species))
+@
+      \begin{minipage}[t]{\linewidth}
+        \centering
+        \adjustbox{valign=t}{
+<<boxplots1-fig1, ref.label='boxplots1-a', dev='pdf', fig.height = 4, fig.width = 6.5, echo=FALSE, results='hide'>>=
+@
+        }
+        \captionof{figure}{Boxplot of \texttt{Sepal.Length} by \texttt{Species}.}
+      \end{minipage}
+    }
+    \item{
+<<boxplots1-b, echo=TRUE, results='hide', eval=FALSE>>=
+ggplot(iris) + geom_boxplot(aes(y=Sepal.Width, x = Species))
+@
+      \begin{minipage}[t]{\linewidth}
+        \centering
+        \adjustbox{valign=t}{
+<<boxplots1-fig2, ref.label='boxplots1-b', dev='pdf', fig.height = 4, fig.width = 6.5, echo=FALSE, results='hide'>>=
+@
+        }
+        \captionof{figure}{Boxplot of \texttt{Sepal.Width} by \texttt{Species}.}
+      \end{minipage}
+    }
+    \item{
+<<boxplots1-d, echo=TRUE, results='hide', eval=FALSE>>=
+ggplot(iris) + geom_boxplot(aes(y=Petal.Length, x = Species))
+@
+      \begin{minipage}[t]{\linewidth}
+        \centering
+        \adjustbox{valign=t}{
+<<boxplots1-fig3, ref.label='boxplots1-d', dev='pdf', fig.height = 4, fig.width = 6.5, echo=FALSE, results='hide'>>=
+@
+        }
+        \captionof{figure}{Boxplot of \texttt{Petal.Length} by \texttt{Species}.}
+      \end{minipage}
+    }
+    \item{
+<<boxplots1-e, echo=TRUE, results='hide', eval=FALSE>>=
+ggplot(iris) + geom_boxplot(aes(y=Petal.Width, x = Species))
+@
+      \begin{minipage}[t]{\linewidth}
+        \centering
+        \adjustbox{valign=t}{
+<<boxplots1-fig4, ref.label='boxplots1-e', dev='pdf', fig.height = 4, fig.width = 6.5, echo=FALSE, results='hide'>>=
+@
+        }
+        \captionof{figure}{Boxplot of \texttt{Petal.Width} by \texttt{Species}.}
+      \end{minipage}
+    }
+  \end{answerlist}
+\end{solution}

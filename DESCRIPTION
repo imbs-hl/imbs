@@ -3,9 +3,15 @@ Title: Collection of functions used at the IMBS
 Version: 0.1.4
 Authors@R: "Arne Schillert <arne.schillert@imbs.uni-luebeck.de> [aut, cre]"
 Description: A set of functions, which proved useful for all kinds of work at
-    the IMBS
+    the IMBS.
 Depends:
     R (>= 3.0.2)
-License: What license is it under?
+License: MIT + file LICENSE
 LazyData: true
 RoxygenNote: 5.0.1
+Imports: checkmate,
+    tools,
+    ggplot2,
+    brew,
+    knitr
+Suggests: testthat

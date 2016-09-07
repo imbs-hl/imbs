@@ -1,0 +1,53 @@
+%%%%%%%%%%%%%%
+%% PACKAGES %%
+%%%%%%%%%%%%%%
+\usepackage{verbatim,xargs}
+
+\usepackage[utf8]{inputenc}
+\usepackage[T1]{fontenc}
+
+\usepackage[ngerman]{babel}
+
+\usepackage[a4paper, left = 3cm, right = 3cm, bottom = 3cm]{geometry}
+\usepackage[automark]{scrpage2}
+
+\usepackage[autostyle=true,german=quotes]{csquotes}
+
+\usepackage{hyperref}
+\hypersetup{
+    colorlinks,
+    citecolor=black,
+    filecolor=black,
+    linkcolor=black,
+    urlcolor=black
+}
+
+\usepackage{amsmath,amssymb,amsfonts,amsbsy,bbm,bm}
+\usepackage{mathtools}
+\usepackage{stackrel}
+\usepackage{blkarray}
+
+\usepackage{siunitx}
+
+\usepackage{enumitem}
+
+\usepackage{booktabs}
+\usepackage{tabularx}
+
+\usepackage{caption}
+
+\usepackage{adjustbox}
+
+
+%%%%%%%%%%%%%%
+%%  STUFF   %%
+%%%%%%%%%%%%%%
+\makeatletter
+% change verbatim font size (R code) to small
+\def\verbatim@font{\small\ttfamily}
+\makeatother
+
+\renewcommand{\sc}{\textsc}
+\renewcommand{\it}{\textit}
+\renewcommand{\bf}{\textbf}
+\renewcommand{\rm}{\textrm}

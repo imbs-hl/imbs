@@ -1,0 +1,53 @@
+\documentclass[11pt]{scrartcl}
+
+<%=paste(readLines("pream.tex"), collapse = "\n")%>
+
+%%%%%%%%%%%%
+%% LAYOUT %%
+%%%%%%%%%%%%
+\setlist[enumerate]{label=\alph*)}
+
+\pagestyle{scrheadings}
+\setkomafont{pagehead}{\sffamily\small}
+\setlength{\parskip}{0pt}
+\setlength{\parindent}{0pt}
+
+\setkeys{Gin}{width=0.95\textwidth}
+
+\setlength{\headheight}{3\baselineskip}
+\setlength{\headsep}{3\baselineskip}
+\setheadsepline{0.5pt}
+\ihead{%
+    The Course Name\\%
+    <%=email%>%
+}
+\cfoot[--- \pagemark{} ---]{--- \pagemark{} ---}
+
+\chead{\large \textbf{Exercise <%=nr%>}}
+\ohead{%
+    <%=year%>\\%
+    Due to <%=date%>%
+}
+
+%%%%%%%%%%%%%%%%%%
+%% ENVIRONMENTS %%
+%%%%%%%%%%%%%%%%%%
+\newenvironment{answerlist}{\begin{enumerate}}{\end{enumerate}}
+
+\newcounter{quest}
+\newenvironment{question}[1]{
+	\stepcounter{quest}
+	\textbf{Exercise <%=nr%>.\arabic{quest}} {\quad \textit{#1 \vspace{0.15cm}}} \newline
+}{\hfill \bigskip}
+
+\newenvironment{solution}{\comment}{\endcomment}
+
+\begin{document}
+
+<% i <- 0 %>
+<%=sapply(exercises, function(ex) {
+                        i <<- i+1;
+                        paste('<<ex', i, ', child=\"', ex, '\">>=', '\n', '@\n', sep = '')
+                      }) %>
+
+\end{document}

@@ -1,0 +1,12 @@
+\begin{question}
+{Regression}
+  Load the \verb+iris+ dataset in \verb+R+ and do a regression of \verb+Species+ and \verb+Sepal.Length+ on \verb+Sepal.Width+.
+\end{question}
+
+\begin{solution}
+{Regression}
+<<regression, echo=TRUE, results='markup', eval=TRUE>>=
+fit <- lm(Sepal.Width ~ Species*Sepal.Length, data = iris)
+summary(fit)
+@
+\end{solution}

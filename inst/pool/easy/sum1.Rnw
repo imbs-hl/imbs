@@ -1,0 +1,43 @@
+<<echo=FALSE, results='hide'>>=
+## QUESTION/ANSWER GENERATION
+a <- sample(1:10, 1)
+b <- sample(11:20, 1)
+@
+
+\begin{question}
+{Two integers}
+  Give the solutions of
+  \begin{answerlist}
+    \item{
+      $\Sexpr{a}+\Sexpr{b}$.
+    }
+    \item{
+      $\Sexpr{a}-\Sexpr{b}$.
+    }
+    \item{
+      $\Sexpr{a}\cdot\Sexpr{b}$.
+    }
+    \item{
+      $\frac{\Sexpr{a}}{\Sexpr{b}}$.
+    }
+  \end{answerlist}
+\end{question}
+
+\begin{solution}
+{Two integers}
+  The solutions are
+  \begin{answerlist}
+    \item{
+      $\Sexpr{a}+\Sexpr{b}=\Sexpr{a+b}$.
+    }
+    \item{
+      $\Sexpr{a}-\Sexpr{b}=\Sexpr{a-b}$.
+    }
+    \item{
+      $\Sexpr{a}\cdot\Sexpr{b}=\Sexpr{a*b}$.
+    }
+    \item{
+      $\frac{\Sexpr{a}}{\Sexpr{b}}=\Sexpr{a/b}$.
+    }
+  \end{answerlist}
+\end{solution}

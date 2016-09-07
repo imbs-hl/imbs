@@ -2,6 +2,7 @@
 
 export(change_csv_locale)
 export(compare_sets)
+export(ex2pdf)
 export(migrateInstalledPackages)
 export(named_file_path)
 export(named_paste)
