@@ -5,7 +5,7 @@
 \title{update_system2_job}
 \usage{
 update_system2_job(reg_name, sys_cmd, vec_cmd_args, more_cmd_args,
-  update = FALSE)
+  env = character(), update = FALSE)
 }
 \arguments{
 \item{reg_name}{[char] Name of registry to load}
@@ -15,6 +15,8 @@ update_system2_job(reg_name, sys_cmd, vec_cmd_args, more_cmd_args,
 \item{vec_cmd_args}{[char] Vector to loop over}
 
 \item{more_cmd_args}{[char] Static arguments, handed to more.args of \code{\link{BatchJobs::batchMap}}}
+
+\item{env}{[char] Directly passed through to  \code{\link{system2()}}}
 
 \item{update}{[logical] TRUE deletes the registry to force re-execution of jobs, default is FALSE}
 }

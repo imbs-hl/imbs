@@ -5,6 +5,7 @@
 #' @param sys_cmd  [char] Name of script to run through \code{\link{system2()}}
 #' @param vec_cmd_args [char] Vector to loop over
 #' @param more_cmd_args [char] Static arguments, handed to more.args of \code{\link{BatchJobs::batchMap}}
+#' @param env [char] Directly passed through to  \code{\link{system2()}}
 #' @param update [logical] TRUE deletes the registry to force re-execution of jobs, default is FALSE
 #'
 #' @return Nothing, throws an error if not all jobs are finished 
@@ -13,6 +14,7 @@ update_system2_job <- function(reg_name,
                                sys_cmd,
                                vec_cmd_args,
                                more_cmd_args,
+                               env = character(),
                                update = FALSE){
   library(BatchJobs)
   # Delete registry if update
@@ -40,7 +42,8 @@ update_system2_job <- function(reg_name,
              fun = function(cmd, vec_args, single_args){
                system2(command = cmd,
                        args = c(vec_args,
-                                single_args))
+                                single_args),
+                       env = env)
              },
              vec_cmd_args,
              more.args = list(cmd = sys_cmd,
