@@ -31,4 +31,3 @@ print_3ptable(notes = notes, xtable(data2, caption = "Regression Coefficients",
               include.rownames = TRUE)
               }
 }
-

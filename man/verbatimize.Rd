@@ -17,4 +17,3 @@ String of pasted values
 \description{
 Encapsulate elements of vector in LaTeX verbatim commands
 }
-

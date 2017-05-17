@@ -22,4 +22,3 @@ named_file_path("home",
                 c(homer = "projects", marge = "work"), 
                 "doo")
 }
-

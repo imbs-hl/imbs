@@ -15,4 +15,3 @@ data.frame containing the data
 \description{
 Reads SNPTEST sample files, ignores the second line though
 }
-

@@ -18,4 +18,3 @@ Uses Bioconductor to install R packages, skips already installed packages
 \details{
 Migrates installed packages from old version
 }
-

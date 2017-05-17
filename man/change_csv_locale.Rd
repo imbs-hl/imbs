@@ -20,4 +20,3 @@ Nothing, invoked for side effect of writing new files
 Convert csv into csv2 files and vice versa. 
 Can cope with vectors of input files
 }
-

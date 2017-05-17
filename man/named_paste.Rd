@@ -3,6 +3,7 @@
 \name{named_paste}
 \alias{named_paste}
 \alias{named_paste0}
+\alias{named_paste0}
 \title{Named paste}
 \usage{
 named_paste(..., sep = " ")
@@ -23,4 +24,3 @@ Paste strings using named elements
 \examples{
 named_paste("a", c(b = "b", c = "c"))
 }
-

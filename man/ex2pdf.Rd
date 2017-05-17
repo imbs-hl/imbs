@@ -109,4 +109,3 @@ ex2pdf(sheets = sheets,
 \author{
 Damian Gola, \email{gola@imbs.uni-luebeck.de}
 }
-

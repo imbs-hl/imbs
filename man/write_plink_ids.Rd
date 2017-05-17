@@ -19,4 +19,3 @@ SNPs}
 \description{
 Write SNP or sample IDs to file
 }
-
