@@ -203,7 +203,7 @@ ex2pdf <- function(sheets,
       sapply(texs, FUN = function(tex) {
         message("Compiling ", tex, "...")
         sysOut <- system2(command = compiler$command,
-                          args = c(compiler$args, tex),
+                          args = c(compiler$args, shQuote(tex)),
                           stdout = TRUE,
                           stderr = TRUE)
         
