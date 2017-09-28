@@ -27,4 +27,3 @@ x <- 1:10
 y <- 4:12
 compare_sets(a = x, b = y)
 }
-

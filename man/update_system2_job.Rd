@@ -26,4 +26,3 @@ Nothing, throws an error if not all jobs are finished
 \description{
 Wrapper around typically batchMap() setup
 }
-
