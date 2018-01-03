@@ -1,7 +1,10 @@
 Package: imbs
 Title: Collection of functions used at the IMBS
 Version: 0.2.1
-Authors@R: "Arne Schillert <arne.schillert@imbs.uni-luebeck.de> [aut, cre]"
+Authors@R: c(
+  person(given = "Arne", family = "Schillert", middle = NULL, email = "arne.schillert@imbs.uni-luebeck.de", role = c("aut", "cre")),
+  person(given = "Damian", family = "Gola", middle = "Raphael", email = "gola@imbs.uni-luebeck.de", role = c("aut", "cre"))
+  )
 Description: A set of functions, which proved useful for all kinds of work at
     the IMBS.
 Depends:
