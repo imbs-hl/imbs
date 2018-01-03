@@ -3,10 +3,12 @@ context("checkCommand")
 
 test_that("checkCommand", {
   
-  skip_on_os("windows")
-  
   dummy_command <- "Kb1VL4bg1TaJ92cYqwNiz5nvZy96VfiFueDV9wjcU8gP54N0uJXZ0t1gSwewcLrhBTI47KIl74rzmoxAWxAACzjr8x0IiHQdRDND"
   command <- "cd"
+  
+  expect_identical(check_command, checkCommand)
+  expect_identical(test_command, testCommand)
+  expect_identical(assert_command, assertCommand)
   
   expect_true(check_command(command))
   expect_true(test_command(command))
