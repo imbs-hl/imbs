@@ -13,7 +13,7 @@
 #' @return A \code{\link[batchtools]{Registry}}.
 #' @export
 #'
-#' @import checkmate, batchtools
+#' @import checkmate batchtools
 #'
 load_or_create_registry <- function(file.dir, work.dir = getwd(), 
                                     writeable = TRUE, 
