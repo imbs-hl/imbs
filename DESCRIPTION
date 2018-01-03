@@ -1,6 +1,6 @@
 Package: imbs
 Title: Collection of functions used at the IMBS
-Version: 0.2.1
+Version: 0.2.2
 Authors@R: c(
   person(given = "Arne", family = "Schillert", middle = NULL, email = "arne.schillert@imbs.uni-luebeck.de", role = c("aut", "cre")),
   person(given = "Damian", family = "Gola", middle = "Raphael", email = "gola@imbs.uni-luebeck.de", role = c("aut", "cre"))
