@@ -167,7 +167,7 @@ plink_conversion <- function(seq.file, output.prefix, ..., exec = "plink",
              "--memory", memory,
              "--make-bed",
              "--out", output.prefix,
-             "--allow-extra-chr", ...)
+             ...)
   )
   
 }
