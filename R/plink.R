@@ -120,3 +120,54 @@ plink_subset <- function(bfile, output.prefix, remove, keep, exclude, extract, .
   )
   
 }
+
+#' Convert VCF files to PLINK binary files
+#'
+#' @param seq.file           [\code{string}]\cr
+#'                           The VCF file path.
+#' @param output.prefix      [\code{string}]\cr
+#'                           The basename of the new binary PLINK files.
+#' @param ...                [\code{character}]\cr
+#'                           Additional arguments passed to PLINK.
+#' @param exec               [\code{string}]\cr
+#'                           Path of PLINK executable.
+#' @param num.threads        [\code{int}]\cr
+#'                           Number of CPUs usable by PLINK.
+#'                           Default is determined by SLURM environment variables and at least 1.
+#' @param memory             [\code{int}]\rc
+#'                           Memory for PLINK in Mb.
+#'                           Default is determined by SLURM environment variables and at least 5000.
+#'
+#' @details See PLINK manual \url{https://www.cog-genomics.org/plink/1.9/}.
+#'
+#' @return Captured system output as \code{character} vector.
+#' @export
+#'
+#' @import checkmate
+#'
+plink_conversion <- function(seq.file, output.prefix, ..., exec = "plink",
+                             num.threads = max(1, as.integer(Sys.getenv("SLURM_NPROCS")), na.rm = TRUE),
+                             memory = max(5000, as.integer(Sys.getenv("SLURM_MEM_PER_CPU")) - 1000, na.rm = TRUE)) {
+  
+  assertions <- checkmate::makeAssertCollection()
+  
+  checkmate::assert_file(seq.file, add = assertions)
+  checkmate::assert_directory(dirname(output.prefix), add = assertions)
+  assert_command(exec, add = assertions)
+  checkmate::assert_int(num.threads, lower = 1, add = assertions)
+  checkmate::assert_int(memory, lower = 1000, add = assertions)
+  
+  checkmate::reportAssertions(assertions)
+  
+  # Run PLINK
+  system_call(
+    bin = exec,
+    args = c("--vcf", seq.file,
+             "--threads", num.threads,
+             "--memory", memory,
+             "--make-bed",
+             "--out", output.prefix,
+             "--allow-extra-chr", ...)
+  )
+  
+}
