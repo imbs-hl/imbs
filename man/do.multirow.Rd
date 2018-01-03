@@ -24,6 +24,7 @@ A \code{data.frame} with multirow(s) inserted.
 Combine rows with the same content
 }
 \examples{
+\dontrun{
 df <- data.frame(FIRST = rep("A", 28), 
                  SECOND = c(rep("A", 4), rep ("B", 6), rep("A", 8), rep("B", 10)), 
                  THIRD = rep(c(LETTERS[0:13 \%\% 24 + 1]), each = 2), 
@@ -36,4 +37,5 @@ print(
   sanitize.text.function = identity, 
   include.rownames = FALSE
 )
+}
 }

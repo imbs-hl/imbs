@@ -12,6 +12,7 @@
 #' @export
 #'
 #' @examples
+#' \dontrun{
 #' df <- data.frame(FIRST = rep("A", 28), 
 #'                  SECOND = c(rep("A", 4), rep ("B", 6), rep("A", 8), rep("B", 10)), 
 #'                  THIRD = rep(c(LETTERS[0:13 %% 24 + 1]), each = 2), 
@@ -24,11 +25,16 @@
 #'   sanitize.text.function = identity, 
 #'   include.rownames = FALSE
 #' )
+#' }
 do.multirow <- function(df, cols=1:ncol(df), cmidrule = TRUE) {
   
-  checkmate::assertDataFrame(df)
-  checkmate::assertInteger(cols)
-  checkmate::assertFlag(cmidrule)
+  assertions <- checkmate::makeAssertCollection()
+  
+  checkmate::assertDataFrame(df, add = assertions)
+  checkmate::assertInteger(cols, add = assertions)
+  checkmate::assertFlag(cmidrule, add = assertions)
+  
+  checkmate::reportAssertions()
   
   df <- as.data.frame(df)
   for (c in cols) {
