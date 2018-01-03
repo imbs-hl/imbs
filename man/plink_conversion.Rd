@@ -26,7 +26,7 @@ Path of PLINK executable.}
 Number of CPUs usable by PLINK.
 Default is determined by SLURM environment variables and at least 1.}
 
-\item{memory}{[\code{int}]\rc
+\item{memory}{[\code{int}]\cr
 Memory for PLINK in Mb.
 Default is determined by SLURM environment variables and at least 5000.}
 }

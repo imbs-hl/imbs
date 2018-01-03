@@ -48,7 +48,7 @@ write_plink_ids <- function(ids, file, update, sample = TRUE) {
 #' @param num.threads        [\code{int}]\cr
 #'                           Number of CPUs usable by PLINK.
 #'                           Default is determined by SLURM environment variables and at least 1.
-#' @param memory             [\code{int}]\rc
+#' @param memory             [\code{int}]\cr
 #'                           Memory for PLINK in Mb.
 #'                           Default is determined by SLURM environment variables and at least 5000.
 #'
@@ -134,7 +134,7 @@ plink_subset <- function(bfile, output.prefix, remove, keep, exclude, extract, .
 #' @param num.threads        [\code{int}]\cr
 #'                           Number of CPUs usable by PLINK.
 #'                           Default is determined by SLURM environment variables and at least 1.
-#' @param memory             [\code{int}]\rc
+#' @param memory             [\code{int}]\cr
 #'                           Memory for PLINK in Mb.
 #'                           Default is determined by SLURM environment variables and at least 5000.
 #'
@@ -189,7 +189,7 @@ plink_conversion <- function(seq.file, output.prefix, ..., exec = "plink",
 #' @param num.threads      [\code{int}]\cr
 #'                         Number of CPUs usable by PLINK.
 #'                         Default is determined by SLURM environment variables and at least 1.
-#' @param memory           [\code{int}]\rc
+#' @param memory           [\code{int}]\cr
 #'                         Memory for PLINK in Mb.
 #'                         Default is determined by SLURM environment variables and at least 5000.
 #'
