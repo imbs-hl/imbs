@@ -20,8 +20,8 @@ print xtable objekts with table notes using threeparttable
 \examples{
 \dontrun{
 notes <- paste('\\\\begin{tablenotes}',
-               '\\\\item [1] Das ist der Parameterschätzer $\\\\beta$',
-               '\\\\item [2] Das ist der p-Wert',
+               '\\\\item [1] Effect estimator $\\\\beta$',
+               '\\\\item [2] P value',
                '\\\\end{tablenotes}',
                sep = '\\n')
                
@@ -30,4 +30,5 @@ print_3ptable(notes = notes, xtable(data2, caption = "Regression Coefficients",
                                     display = c('s', 'f','f','f','e'), ),
               include.rownames = TRUE)
               }
+              
 }

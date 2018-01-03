@@ -4,12 +4,12 @@
 \alias{change_csv_locale}
 \title{Changes delimiters in csv files}
 \usage{
-change_csv_locale(in_file, out_file, from = c("de", "en"))
+change_csv_locale(in_files, out_files, from = c("de", "en"))
 }
 \arguments{
-\item{in_file}{Input csv file(s) [character]}
+\item{in_files}{Input csv file(s) [character]}
 
-\item{out_file}{Output csv file(s) [character]}
+\item{out_files}{Output csv file(s) [character]}
 
 \item{from}{Language/locale of source file must be \code{'en'} or \code{'de'}}
 }

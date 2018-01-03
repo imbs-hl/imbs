@@ -8,8 +8,8 @@
 ##' @examples 
 ##' \dontrun{
 ##' notes <- paste('\\begin{tablenotes}',
-##'                '\\item [1] Das ist der Parameterschätzer $\\beta$',
-##'                '\\item [2] Das ist der p-Wert',
+##'                '\\item [1] Effect estimator $\\beta$',
+##'                '\\item [2] P value',
 ##'                '\\end{tablenotes}',
 ##'                sep = '\n')
 ##'                
@@ -18,10 +18,13 @@
 ##'                                     display = c('s', 'f','f','f','e'), ),
 ##'               include.rownames = TRUE)
 ##'               }
+##'               
+##' @import xtable
+##'               
 ##' @export
 ##' 
 print_3ptable <- function(notes, ...){
-  tmp_table <- print.xtable(...,
+  tmp_table <- xtable::print.xtable(...,
                             latex.environments = c(getOption("xtable.latex.environments", c("center")), 'threeparttable'),
                             sanitize.text.function=function(x){x},
                             print.results = FALSE)

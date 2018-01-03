@@ -3,6 +3,8 @@
 #'
 #' @param x  [\code{string}]\cr
 #'           Command to check.
+#'           
+#' @details See \code{\link[checkmate]{checkmate}} for details.
 #'
 #' @return If the check is successful, i.e. the system command is found, returns \code{TRUE}. If the check is not successful, returns a string with the error message.
 #' @export
@@ -34,8 +36,10 @@ check_command <- function(x) {
 
 #' @export
 #' @rdname check_command
-#' 
-#' @details See \link[checkmate]{assert} for details.
+#' @param .var.name           [\code{string}]\cr
+#'                            Name of the checked object to print in assertions. Defaults to the heuristic implemented in \code{\link{vname}}.
+#' @param add                 [\code{\link[checkmate]{AssertCollection}}]\cr
+#'                            Collection to store assertion messages. See \code{\link[checkmate]{AssertCollection}}.
 assert_command <- checkmate::makeAssertionFunction(check_command)
 
 #' @export

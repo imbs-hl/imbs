@@ -5,7 +5,9 @@
 #'                       File path where the registry is stored.
 #' @param work.dir       [\code{string}]\cr
 #'                       File path where the working dir of the registry is set to.
-#' @param overwrite      [\code{logical}]\cr
+#' @param writeable      [\code{flag}]\cr
+#'                       If a registry is loaded, make it writeable?
+#' @param overwrite      [\code{flag}]\cr
 #'                       Should an existing registry be removed and recreated?
 #' @param ...            [any]\cr
 #'                       Further arguments passed to \code{\link[batchtools]{makeRegistry}} and \code{\link[batchtools]{loadRegistry}}.
@@ -23,6 +25,7 @@ load_or_create_registry <- function(file.dir, work.dir = getwd(),
   
   checkmate::assert_directory(dirname(file.dir), add = assertions)
   checkmate::assert_directory(work.dir, add = assertions)
+  checkmate::assert_flag(writeable, add = assertions)
   checkmate::assert_flag(overwrite, add = assertions)
   
   checkmate::reportAssertions(assertions)

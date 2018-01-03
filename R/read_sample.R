@@ -6,7 +6,7 @@
 ##' @return data.frame containing the data
 ##' @export 
 
-read.sample <- function(file){
+read_sample <- function(file){
   header <- read.table(file, as.is = TRUE, nrows = 1)
   body <-  read.table(file, as.is = TRUE, skip = 2,
                       header = FALSE)

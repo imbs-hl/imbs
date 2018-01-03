@@ -17,7 +17,7 @@ system_call <- function(bin, ...) {
   
   assertions <- checkmate::makeAssertCollection()
   
-  assertCommand(bin, add = collection)
+  assertCommand(bin, add = assertions)
   
   checkmate::reportAssertions(assertions)
   

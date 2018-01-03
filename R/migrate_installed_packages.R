@@ -8,12 +8,14 @@
 ##' @return Vector of packages which are not on CRAN or Bioconductor
 ##' @export
 ##' 
-migrateInstalledPackages <- function(old_dir){
+migrate_installed_packages <- function(old_dir){
   
   ## Get list of installed packages -----------------------------------
   to_migrate_pkgs <- dir(old_dir)
   
   ## Get info for CRAN and Bioc packages ------------------------------
+  biocLite <- NULL
+  biocVersion <- NULL
   message(date(), ' Querying CRAN')
   cran_pkgs <-   available.packages(
     contriburl = contrib.url('http://cran.r-project.org'))[,'Package']

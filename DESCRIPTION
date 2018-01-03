@@ -2,8 +2,8 @@ Package: imbs
 Title: Collection of functions used at the IMBS
 Version: 0.2.3
 Authors@R: c(
-  person(given = "Arne", family = "Schillert", middle = NULL, email = "arne.schillert@imbs.uni-luebeck.de", role = c("aut", "cre")),
-  person(given = "Damian", family = "Gola", middle = "Raphael", email = "gola@imbs.uni-luebeck.de", role = c("aut", "cre"))
+  person(given = "Arne", family = "Schillert", middle = NULL, email = "arne.schillert@imbs.uni-luebeck.de", role = c("aut")),
+  person(given = "Damian", family = "Gola", email = "gola@imbs.uni-luebeck.de", role = c("aut", "cre"))
   )
 Description: A set of functions, which proved useful for all kinds of work at
     the IMBS.
@@ -14,9 +14,12 @@ LazyData: true
 RoxygenNote: 6.0.1
 Imports: checkmate,
     tools,
-    ggplot2,
     brew,
     knitr,
-    batchtools
+    BBmisc,
+    BatchJobs,
+    batchtools,
+    xtable,
+    data.table
 Suggests:
     testthat

@@ -11,6 +11,8 @@
 #' @return A \code{data.frame} with multirow(s) inserted.
 #' @export
 #'
+#' @import utils data.table
+#'
 #' @examples
 #' \dontrun{
 #' df <- data.frame(FIRST = rep("A", 28), 
@@ -26,7 +28,7 @@
 #'   include.rownames = FALSE
 #' )
 #' }
-do.multirow <- function(df, cols=1:ncol(df), cmidrule = TRUE) {
+do_multirow <- function(df, cols=1:ncol(df), cmidrule = TRUE) {
   
   assertions <- checkmate::makeAssertCollection()
   
@@ -43,7 +45,7 @@ do.multirow <- function(df, cols=1:ncol(df), cmidrule = TRUE) {
       tmp <- rep("", nrow(df))
       if (cmidrule) {
         
-        r <- c(1, 1 + head(cumsum(runs$lengths), -1))
+        r <- c(1, 1 + utils::head(cumsum(runs$lengths), -1))
         
         adjust <- sapply(mapply(seq, from = r, to = data.table::shift(r, type = "lead", fill = nrow(df) + 1) - 1, SIMPLIFY = FALSE),
                          function(rows) {

@@ -9,6 +9,7 @@
 #'   SNPs
 #'   
 #' @return NULL
+#' @import utils
 #' @export
 write_plink_ids <- function(ids, file, update, sample = TRUE) {
   if (sample) {
@@ -17,7 +18,7 @@ write_plink_ids <- function(ids, file, update, sample = TRUE) {
     out <- ids
   }
   if (update | !file.exists(file)) {
-    write.table(
+    utils::write.table(
       out,
       file,
       row.names = FALSE,

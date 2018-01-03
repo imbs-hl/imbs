@@ -14,7 +14,10 @@ File path where the registry is stored.}
 \item{work.dir}{[\code{string}]\cr
 File path where the working dir of the registry is set to.}
 
-\item{overwrite}{[\code{logical}]\cr
+\item{writeable}{[\code{flag}]\cr
+If a registry is loaded, make it writeable?}
+
+\item{overwrite}{[\code{flag}]\cr
 Should an existing registry be removed and recreated?}
 
 \item{...}{[any]\cr

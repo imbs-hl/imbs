@@ -24,6 +24,12 @@ testCommand(x)
 \arguments{
 \item{x}{[\code{string}]\cr
 Command to check.}
+
+\item{.var.name}{[\code{string}]\cr
+Name of the checked object to print in assertions. Defaults to the heuristic implemented in \code{\link{vname}}.}
+
+\item{add}{[\code{\link[checkmate]{AssertCollection}}]\cr
+Collection to store assertion messages. See \code{\link[checkmate]{AssertCollection}}.}
 }
 \value{
 If the check is successful, i.e. the system command is found, returns \code{TRUE}. If the check is not successful, returns a string with the error message.
@@ -32,5 +38,5 @@ If the check is successful, i.e. the system command is found, returns \code{TRUE
 Check if command exists
 }
 \details{
-See \link[checkmate]{assert} for details.
+See \code{\link[checkmate]{checkmate}} for details.
 }

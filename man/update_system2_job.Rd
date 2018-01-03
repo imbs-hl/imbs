@@ -4,25 +4,53 @@
 \alias{update_system2_job}
 \title{update_system2_job}
 \usage{
-update_system2_job(reg_name, sys_cmd, vec_cmd_args, more_cmd_args,
-  env = character(), update = FALSE)
+update_system2_job(reg.name, reg.dir, work.dir, sys.cmd, vec.cmd.args,
+  more.cmd.args, seed, cpus = 1, memory = 5000, walltime = 60,
+  partition = "fast", env = character(), update = FALSE)
 }
 \arguments{
-\item{reg_name}{[char] Name of registry to load}
+\item{reg.name}{[\code{string}]\cr
+Name of registry to load or create.}
 
-\item{sys_cmd}{[char] Name of script to run through \code{\link{system2()}}}
+\item{reg.dir}{[\code{string}]\cr
+Path where files regarding the registry / jobs should be saved.}
 
-\item{vec_cmd_args}{[char] Vector to loop over}
+\item{work.dir}{[\code{string}]\cr
+Working directory for R process when experiment is executed.}
 
-\item{more_cmd_args}{[char] Static arguments, handed to more.args of \code{\link{BatchJobs::batchMap}}}
+\item{sys.cmd}{[\code{string}]\cr
+Name of script to run through \code{\link{system2}}.}
 
-\item{env}{[char] Directly passed through to  \code{\link{system2()}}}
+\item{vec.cmd.args}{[\code{character}] 
+Vector to loop over.}
 
-\item{update}{[logical] TRUE deletes the registry to force re-execution of jobs, default is FALSE}
+\item{more.cmd.args}{[\code{list}]\cr
+Static arguments, handed to more.args of \code{\link[BatchJobs]{batchMap}}.}
+
+\item{seed}{[\code{int}]\cr
+Start seed for experiments. The first experiment in the registry will use this seed, for the subsequent ones the seed is incremented by 1.}
+
+\item{cpus}{[\code{int}]\cr
+Number of CPUs to use for each job.}
+
+\item{memory}{[\code{int}]\cr 
+Memory to use for each job in MB. Default is 5000.}
+
+\item{walltime}{[\code{int}]\cr
+Maximum runtime for each job in minutes. Default is 59.}
+
+\item{partition}{[\code{string}]\cr
+The partition the jobs are sent to.}
+
+\item{env}{[\code{character}]\cr 
+Directly passed to  \code{\link{system2}}. Character vector of name=value strings to set environment variables.}
+
+\item{update}{[\code{flag}]\cr
+\code{TRUE} deletes the registry to force re-execution of jobs, default is \code{FALSE}, i.e. to load the registry and resume jobs not done.}
 }
 \value{
 Nothing, throws an error if not all jobs are finished
 }
 \description{
-Wrapper around typically batchMap() setup
+Wrapper around typically \code{batchMap} setup
 }
