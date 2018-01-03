@@ -171,3 +171,73 @@ plink_conversion <- function(seq.file, output.prefix, ..., exec = "plink",
   )
   
 }
+
+#' Merge two PLINK datasets
+#'
+#' @param old.prefix       [\code{string}]\cr
+#'                         The basename of the first binary PLINK file set.
+#' @param new.prefix       [\code{string}]\cr
+#'                         The basename of the second binary PLINK file set.
+#' @param merge.mode       [\code{int}]\cr
+#'                         Merge mode.
+#' @param output.prefix    [\code{string}]\cr
+#'                         The basename of the output binary PLINK file set.
+#' @param ...              [\code{character}]\cr
+#'                         Additional arguments passed to PLINK.
+#' @param exec             [\code{string}]\cr
+#'                         Path of PLINK executable.
+#' @param num.threads      [\code{int}]\cr
+#'                         Number of CPUs usable by PLINK.
+#'                         Default is determined by SLURM environment variables and at least 1.
+#' @param memory           [\code{int}]\rc
+#'                         Memory for PLINK in Mb.
+#'                         Default is determined by SLURM environment variables and at least 5000.
+#'
+#' @details See PLINK manual \url{https://www.cog-genomics.org/plink/1.9/}.
+#'
+#' @return Captured system output as \code{character} vector.
+#' @export
+#'
+#' @import checkmate
+#'
+plink_merge <- function(old.prefix, new.prefix, merge.mode,
+                        output.prefix,
+                        ...,
+                        exec = "plink",
+                        num.threads = max(1, as.integer(Sys.getenv("SLURM_NPROCS")), na.rm = TRUE),
+                        memory = max(5000, as.integer(Sys.getenv("SLURM_MEM_PER_CPU")) - 1000, na.rm = TRUE)) {
+  
+  assertions <- checkmate::makeAssertCollection()
+  
+  checkmate::assert_file(sprintf("%s.bed", old.prefix), add = assertions)
+  checkmate::assert_file(sprintf("%s.bim", old.prefix), add = assertions)
+  checkmate::assert_file(sprintf("%s.fam", old.prefix), add = assertions)
+  
+  checkmate::assert_file(sprintf("%s.bed", new.prefix), add = assertions)
+  checkmate::assert_file(sprintf("%s.bim", new.prefix), add = assertions)
+  checkmate::assert_file(sprintf("%s.fam", new.prefix), add = assertions)
+  
+  checkmate::assert_int(merge.mode, lower = 1, upper = 7, add = assertions)
+  
+  checkmate::assert_directory(dirname(output.prefix), add = assertions)
+  
+  assert_command(exec, add = assertions)
+  
+  checkmate::assert_int(num.threads, lower = 1, add = assertions)
+  checkmate::assert_int(memory, lower = 1000, add = assertions)
+  
+  checkmate::reportAssertions(assertions)
+  
+  # Make a merge with PLINK
+  system_call(
+    bin = exec,
+    args = c("--bfile ", old.prefix,
+             "--bmerge ", new.prefix,
+             "--threads", num.threads,
+             "--memory", memory,
+             "--merge-mode ", merge.mode,
+             "--out", output.prefix,
+             ...)
+  )
+  
+}
