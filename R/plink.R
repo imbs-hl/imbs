@@ -26,3 +26,97 @@ write_plink_ids <- function(ids, file, update, sample = TRUE) {
     )
   }
 }
+
+#' Subset samples and variants using PLINK
+#'
+#' @param bfile              [\code{string}]\cr
+#'                           The basename of the binary PLINK files.
+#' @param output.prefix      [\code{string}]\cr
+#'                           The basename of the new binary PLINK files.
+#' @param remove             [\code{string}]\cr
+#'                           File name of a list of sample FIDs and IIDs to remove.
+#' @param keep               [\code{string}]\cr
+#'                           File name of a list of sample FIDs and IIDs to keep.
+#' @param exclude            [\code{string}]\cr
+#'                           File name of a list of variant names to remove.
+#' @param extract            [\code{string}]\cr
+#'                           File name of a list of variant names to keep.
+#' @param ...                [\code{character}]\cr
+#'                           Additional arguments passed to PLINK.
+#' @param exec               [\code{string}]\cr
+#'                           Path of PLINK executable.
+#' @param num.threads        [\code{int}]\cr
+#'                           Number of CPUs usable by PLINK.
+#'                           Default is determined by SLURM environment variables and at least 1.
+#' @param memory             [\code{int}]\rc
+#'                           Memory for PLINK in Mb.
+#'                           Default is determined by SLURM environment variables and at least 5000.
+#'
+#' @details See PLINK manual \url{https://www.cog-genomics.org/plink/1.9/}.
+#'
+#' @return Captured system output as \code{character} vector.
+#' @export
+#'
+#' @import checkmate
+#'
+plink_subset <- function(bfile, output.prefix, remove, keep, exclude, extract, ...,
+                         exec = "plink",
+                         num.threads = max(1, as.integer(Sys.getenv("SLURM_NPROCS")), na.rm = TRUE),
+                         memory = max(5000, as.integer(Sys.getenv("SLURM_MEM_PER_CPU")) - 1000, na.rm = TRUE)) {
+  
+  assertions <- checkmate::makeAssertCollection()
+  
+  checkmate::assert_file(sprintf("%s.bed", bfile), add = assertions)
+  checkmate::assert_file(sprintf("%s.bim", bfile), add = assertions)
+  checkmate::assert_file(sprintf("%s.fam", bfile), add = assertions)
+  
+  checkmate::assert_string(output.prefix, add = assertions)
+  checkmate::assert_directory(dirname(output.prefix), add = assertions)
+  
+  if (missing(remove)) {
+    remove <- ""
+  } else {
+    checkmate::assert_file(remove, add = assertions)
+    remove <- sprintf("--remove %s", remove)
+  }
+  if (missing(keep)) {
+    keep <- ""
+  } else {
+    checkmate::assert_file(keep, add = assertions)
+    keep <- sprintf("--keep %s", keep)
+  }
+  
+  if (missing(exclude)) {
+    exclude <- ""
+  } else {
+    checkmate::assert_file(exclude, add = assertions)
+    exclude <- sprintf("--exclude %s", exclude)
+  }
+  if (missing(extract)) {
+    extract <- ""
+  } else {
+    checkmate::assert_file(extract, add = assertions)
+    extract <- sprintf("--extract %s", extract)
+  }
+  
+  assert_command(exec, add = assertions)
+  checkmate::assert_int(num.threads, lower = 1, add = assertions)
+  checkmate::assert_int(memory, lower = 1000, add = assertions)
+  
+  checkmate::reportAssertions(assertions)
+  
+  system_call(
+    bin = exec,
+    args = c("--bfile", bfile,
+             "--threads", num.threads,
+             "--memory", memory*num.threads,
+             remove,
+             keep,
+             extract,
+             exclude,
+             "--make-bed",
+             "--allow-extra-chr",
+             "--out", output.prefix, ...)
+  )
+  
+}
