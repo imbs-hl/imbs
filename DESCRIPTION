@@ -16,6 +16,7 @@ Imports: checkmate,
     tools,
     ggplot2,
     brew,
-    knitr
+    knitr,
+    batchtools
 Suggests:
     testthat
