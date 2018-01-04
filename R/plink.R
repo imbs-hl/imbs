@@ -472,3 +472,91 @@ plink_sex_imputation <- function(bfile, output.prefix,
   )
   
 }
+
+#' Merge multiple PLINK datasets
+#'
+#' @param bfile              [\code{string}]\cr
+#'                           The basename of the binary PLINK files.
+#' @param output.prefix      [\code{string}]\cr
+#'                           The basename of the new binary PLINK files.
+#' @param merge.list         [\code{string}]\cr
+#'                           File listing other PLINK datasets to be merged.
+#' @param merge.mode         [\code{int}]\cr
+#'                           Merge mode.
+#' @param ...                [\code{character}]\cr
+#'                           Additional arguments passed to PLINK.
+#' @param bed.file           [\code{string}]\cr
+#'                           Alternative to \code{bfile} interface. Specify \code{bed}, \code{bim} and \code{fam} files individually.
+#' @param bim.file           [\code{string}]\cr
+#'                           Alternative to \code{bfile} interface. Specify \code{bed}, \code{bim} and \code{fam} files individually.
+#' @param fam.file           [\code{string}]\cr
+#'                           Alternative to \code{bfile} interface. Specify \code{bed}, \code{bim} and \code{fam} files individually.
+#' @param exec               [\code{string}]\cr
+#'                           Path of PLINK executable.
+#' @param num.threads        [\code{int}]\cr
+#'                           Number of CPUs usable by PLINK.
+#'                           Default is determined by SLURM environment variables and at least 1.
+#' @param memory             [\code{int}]\cr
+#'                           Memory for PLINK in Mb.
+#'                           Default is determined by SLURM environment variables and at least 5000.
+#'
+#' @details See PLINK manual \url{https://www.cog-genomics.org/plink/1.9/}.
+#'
+#' @return Captured system output as \code{character} vector.
+#' @export
+#'
+#' @import checkmate tools
+#'
+plink_merge_list <- function(bfile, output.prefix, 
+                                 merge.list, merge.mode, ...,
+                                 bed.file = NULL, bim.file = NULL, fam.file = NULL,
+                                 exec = "plink",
+                                 num.threads = max(1, as.integer(Sys.getenv("SLURM_NPROCS")), na.rm = TRUE),
+                                 memory = max(5000, as.integer(Sys.getenv("SLURM_MEM_PER_CPU")) - 1000, na.rm = TRUE)) {
+  
+  assertions <- checkmate::makeAssertCollection()
+  
+  if (!missing(bfile)) {
+    checkmate::assert_file(sprintf("%s.bed", bfile), add = assertions)
+    checkmate::assert_file(sprintf("%s.bim", bfile), add = assertions)
+    checkmate::assert_file(sprintf("%s.fam", bfile), add = assertions)
+    input <- sprintf("--bfile %s", bfile)
+  } else {
+    checkmate::assert_file(bed.file, add = assertions)
+    checkmate::assert_file(bim.file, add = assertions)
+    checkmate::assert_file(fam.file, add = assertions)
+    input <- sprintf("--bed %s --bim %s --fam %s", bed.file, bim.file, fam.file)
+  }
+  
+  checkmate::assert_string(output.prefix, add = assertions)
+  checkmate::assert_directory(dirname(output.prefix), add = assertions)
+  
+  checkmate::assert_file(merge.list, add = assertions)
+  
+  if (!missing(merge.mode)) {
+  checkmate::assert_int(merge.mode, lower = 1, upper = 7, add = assertions)
+    merge.mode <- sprintf("--merge-mode %d", merge.mode)
+  } else {
+    merge.mode <- ""
+  }
+  
+  assert_command(exec, add = assertions)
+  checkmate::assert_int(num.threads, lower = 1, add = assertions)
+  checkmate::assert_int(memory, lower = 1000, add = assertions)
+  
+  checkmate::reportAssertions(assertions)
+  
+  system_call(
+    bin = exec,
+    args = c(input,
+             "--threads", num.threads,
+             "--memory", memory,
+             "--merge-list", merge.list,
+             merge.mode,
+             "--keep-allele-order",
+             "--allow-extra-chr", "0",
+             "--make-bed",
+             "--out", output.prefix, ...)
+  )
+  
+}
