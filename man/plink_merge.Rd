@@ -4,16 +4,18 @@
 \alias{plink_merge}
 \title{Merge two PLINK datasets}
 \usage{
-plink_merge(old.prefix, new.prefix, merge.mode, output.prefix, ...,
+plink_merge(first.prefix, second.prefix, merge.mode, output.prefix, ...,
+  first.bed.file = NULL, first.bim.file = NULL, first.fam.file = NULL,
+  second.bed.file = NULL, second.bim.file = NULL, second.fam.file = NULL,
   exec = "plink", num.threads = max(1,
   as.integer(Sys.getenv("SLURM_NPROCS")), na.rm = TRUE), memory = max(5000,
   as.integer(Sys.getenv("SLURM_MEM_PER_CPU")) - 1000, na.rm = TRUE))
 }
 \arguments{
-\item{old.prefix}{[\code{string}]\cr
+\item{first.prefix}{[\code{string}]\cr
 The basename of the first binary PLINK file set.}
 
-\item{new.prefix}{[\code{string}]\cr
+\item{second.prefix}{[\code{string}]\cr
 The basename of the second binary PLINK file set.}
 
 \item{merge.mode}{[\code{int}]\cr
@@ -24,6 +26,24 @@ The basename of the output binary PLINK file set.}
 
 \item{...}{[\code{character}]\cr
 Additional arguments passed to PLINK.}
+
+\item{first.bed.file}{[\code{string}]\cr
+Alternative to \code{bfile} interface. Specify \code{bed}, \code{bim} and \code{fam} files individually.}
+
+\item{first.bim.file}{[\code{string}]\cr
+Alternative to \code{bfile} interface. Specify \code{bed}, \code{bim} and \code{fam} files individually.}
+
+\item{first.fam.file}{[\code{string}]\cr
+Alternative to \code{bfile} interface. Specify \code{bed}, \code{bim} and \code{fam} files individually.}
+
+\item{second.bed.file}{[\code{string}]\cr
+Alternative to \code{bfile} interface. Specify \code{bed}, \code{bim} and \code{fam} files individually.}
+
+\item{second.bim.file}{[\code{string}]\cr
+Alternative to \code{bfile} interface. Specify \code{bed}, \code{bim} and \code{fam} files individually.}
+
+\item{second.fam.file}{[\code{string}]\cr
+Alternative to \code{bfile} interface. Specify \code{bed}, \code{bim} and \code{fam} files individually.}
 
 \item{exec}{[\code{string}]\cr
 Path of PLINK executable.}
