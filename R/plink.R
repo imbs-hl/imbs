@@ -110,7 +110,7 @@ plink_subset <- function(bfile, output.prefix, remove, keep, exclude, extract, .
     bin = exec,
     args = c("--bfile", bfile,
              "--threads", num.threads,
-             "--memory", memory*num.threads,
+             "--memory", memory,
              remove,
              keep,
              extract,
@@ -264,6 +264,36 @@ plink_merge <- function(old.prefix, new.prefix, merge.mode,
   
 }
 
+#' LD pruning with PLINK
+#'
+#' @param bfile              [\code{string}]\cr
+#'                           The basename of the binary PLINK files.
+#' @param output.prefix      [\code{string}]\cr
+#'                           The basename of the new binary PLINK files.
+#' @param window.size        [\code{int}]\cr
+#'                           Window size in kilobase.
+#' @param step.size          [\code{int}]\cr
+#'                           Step size in kilobase.
+#' @param threshold          [\code{number}]\cr
+#'                           Pairwise \eqn{r^2} threshold.
+#' @param ...                [\code{character}]\cr
+#'                           Additional arguments passed to PLINK.
+#' @param exec               [\code{string}]\cr
+#'                           Path of PLINK executable.
+#' @param num.threads        [\code{int}]\cr
+#'                           Number of CPUs usable by PLINK.
+#'                           Default is determined by SLURM environment variables and at least 1.
+#' @param memory             [\code{int}]\cr
+#'                           Memory for PLINK in Mb.
+#'                           Default is determined by SLURM environment variables and at least 5000.
+#'
+#' @details See PLINK manual \url{https://www.cog-genomics.org/plink/1.9/}.
+#'
+#' @return Captured system output as \code{character} vector.
+#' @export
+#'
+#' @import checkmate
+#'
 plink_ld_pruning <- function(bfile, output.prefix, 
                              window.size, step.size, threshold, ...,
                              exec = "plink",
@@ -279,31 +309,9 @@ plink_ld_pruning <- function(bfile, output.prefix,
   checkmate::assert_string(output.prefix, add = assertions)
   checkmate::assert_directory(dirname(output.prefix), add = assertions)
   
-  if (missing(remove)) {
-    remove <- ""
-  } else {
-    checkmate::assert_file(remove, add = assertions)
-    remove <- sprintf("--remove %s", remove)
-  }
-  if (missing(keep)) {
-    keep <- ""
-  } else {
-    checkmate::assert_file(keep, add = assertions)
-    keep <- sprintf("--keep %s", keep)
-  }
-  
-  if (missing(exclude)) {
-    exclude <- ""
-  } else {
-    checkmate::assert_file(exclude, add = assertions)
-    exclude <- sprintf("--exclude %s", exclude)
-  }
-  if (missing(extract)) {
-    extract <- ""
-  } else {
-    checkmate::assert_file(extract, add = assertions)
-    extract <- sprintf("--extract %s", extract)
-  }
+  checkmate::assert_int(window.size, lower = 2, add = assertions)
+  checkmate::assert_int(step.size, lower = 1, add = assertions)
+  checkmate::assert_number(threshold, lower = 0, upper = 1, add = assertions)
   
   assert_command(exec, add = assertions)
   checkmate::assert_int(num.threads, lower = 1, add = assertions)
@@ -315,12 +323,9 @@ plink_ld_pruning <- function(bfile, output.prefix,
     bin = exec,
     args = c("--bfile", bfile,
              "--threads", num.threads,
-             "--memory", memory*num.threads,
-             remove,
-             keep,
-             extract,
-             exclude,
-             "--make-bed",
+             "--memory", memory,
+             "--keep-allele-order",
+             "--indep-pairwise", sprintf("%dkb", window.size), sprintf("%dkb",step.size), threshold,
              "--allow-extra-chr",
              "--out", output.prefix, ...)
   )
