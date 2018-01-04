@@ -131,7 +131,8 @@ plink_subset <- function(bfile, output.prefix, remove, keep, exclude, extract, .
              extract,
              exclude,
              "--make-bed",
-             "--allow-extra-chr",
+             "--keep-allele-order",
+             "--allow-extra-chr", "0",
              "--out", output.prefix, ...)
   )
   
@@ -167,7 +168,7 @@ plink_subset <- function(bfile, output.prefix, remove, keep, exclude, extract, .
 #'
 #' @import checkmate
 #'
-plink_conversion <- function(vcf.file, ref.file, output.prefix, ..., 
+plink_vcf_conversion <- function(vcf.file, ref.file, output.prefix, ..., 
                              build = "b37",
                              bcftools.exec = "bcftools", plink.exec = "plink",
                              num.threads = max(1, as.integer(Sys.getenv("SLURM_NPROCS")), na.rm = TRUE),
@@ -196,9 +197,9 @@ plink_conversion <- function(vcf.file, ref.file, output.prefix, ...,
              bcftools.exec, "annotate", "-Ob", "-x", "ID", "-I", "+'%CHROM:%POS:%REF:%ALT'",
              "|",
              plink.exec, "--bcf", "/dev/stdin",
-             "--keep-allele-order",
              "--vcf-idspace-to", "_",
              "--const-fid",
+             "--keep-allele-order",
              "--allow-extra-chr", "0",
              "--split-x", build, "no-fail",
              "--threads", num.threads,
@@ -211,9 +212,9 @@ plink_conversion <- function(vcf.file, ref.file, output.prefix, ...,
 
 #' Merge two PLINK datasets
 #'
-#' @param first.prefix       [\code{string}]\cr
+#' @param first.prefix     [\code{string}]\cr
 #'                         The basename of the first binary PLINK file set.
-#' @param second.prefix       [\code{string}]\cr
+#' @param second.prefix    [\code{string}]\cr
 #'                         The basename of the second binary PLINK file set.
 #' @param merge.mode       [\code{int}]\cr
 #'                         Merge mode.
@@ -221,18 +222,18 @@ plink_conversion <- function(vcf.file, ref.file, output.prefix, ...,
 #'                         The basename of the output binary PLINK file set.
 #' @param ...              [\code{character}]\cr
 #'                         Additional arguments passed to PLINK.
-#' @param first.bed.file           [\code{string}]\cr
-#'                           Alternative to \code{bfile} interface. Specify \code{bed}, \code{bim} and \code{fam} files individually.
-#' @param first.bim.file           [\code{string}]\cr
-#'                           Alternative to \code{bfile} interface. Specify \code{bed}, \code{bim} and \code{fam} files individually.
-#' @param first.fam.file           [\code{string}]\cr
-#'                           Alternative to \code{bfile} interface. Specify \code{bed}, \code{bim} and \code{fam} files individually.
-#' @param second.bed.file           [\code{string}]\cr
-#'                           Alternative to \code{bfile} interface. Specify \code{bed}, \code{bim} and \code{fam} files individually.
-#' @param second.bim.file           [\code{string}]\cr
-#'                           Alternative to \code{bfile} interface. Specify \code{bed}, \code{bim} and \code{fam} files individually.
-#' @param second.fam.file           [\code{string}]\cr
-#'                           Alternative to \code{bfile} interface. Specify \code{bed}, \code{bim} and \code{fam} files individually.
+#' @param first.bed.file   [\code{string}]\cr
+#'                         Alternative to \code{bfile} interface. Specify \code{bed}, \code{bim} and \code{fam} files individually.
+#' @param first.bim.file   [\code{string}]\cr
+#'                         Alternative to \code{bfile} interface. Specify \code{bed}, \code{bim} and \code{fam} files individually.
+#' @param first.fam.file   [\code{string}]\cr
+#'                         Alternative to \code{bfile} interface. Specify \code{bed}, \code{bim} and \code{fam} files individually.
+#' @param second.bed.file  [\code{string}]\cr
+#'                         Alternative to \code{bfile} interface. Specify \code{bed}, \code{bim} and \code{fam} files individually.
+#' @param second.bim.file  [\code{string}]\cr
+#'                         Alternative to \code{bfile} interface. Specify \code{bed}, \code{bim} and \code{fam} files individually.
+#' @param second.fam.file  [\code{string}]\cr
+#'                         Alternative to \code{bfile} interface. Specify \code{bed}, \code{bim} and \code{fam} files individually.
 #' @param exec             [\code{string}]\cr
 #'                         Path of PLINK executable.
 #' @param num.threads      [\code{int}]\cr
@@ -302,6 +303,8 @@ plink_merge <- function(first.prefix, second.prefix, merge.mode,
              second,
              "--threads", num.threads,
              "--memory", memory,
+             "--keep-allele-order",
+             "--allow-extra-chr", "0",
              "--merge-mode ", merge.mode,
              "--out", output.prefix,
              ...)
@@ -385,8 +388,8 @@ plink_ld_pruning <- function(bfile, output.prefix,
              "--threads", num.threads,
              "--memory", memory,
              "--keep-allele-order",
+             "--allow-extra-chr", "0",
              "--indep-pairwise", sprintf("%dkb", window.size), sprintf("%dkb",step.size), threshold,
-             "--allow-extra-chr",
              "--out", output.prefix, ...)
   )
   
@@ -461,9 +464,9 @@ plink_sex_imputation <- function(bfile, output.prefix,
     args = c(input,
              "--threads", num.threads,
              "--memory", memory,
-             "--keep-allele-order",
              "--impute-sex", f.values,
-             "--allow-extra-chr",
+             "--keep-allele-order",
+             "--allow-extra-chr", "0",
              "--make-bed",
              "--out", output.prefix, ...)
   )
