@@ -331,3 +331,65 @@ plink_ld_pruning <- function(bfile, output.prefix,
   )
   
 }
+
+#' Sex imputation with PLINK
+#'
+#' @param bfile              [\code{string}]\cr
+#'                           The basename of the binary PLINK files.
+#' @param output.prefix      [\code{string}]\cr
+#'                           The basename of the new binary PLINK files.
+#' @param f.values           [\code{numeric(2)}]\cr
+#'                           \code{numeric} of length \code{2} with minimum F coefficients to impute females (\code{[1]}) or males (\code{[2]}).
+#' @param ...                [\code{character}]\cr
+#'                           Additional arguments passed to PLINK.
+#' @param exec               [\code{string}]\cr
+#'                           Path of PLINK executable.
+#' @param num.threads        [\code{int}]\cr
+#'                           Number of CPUs usable by PLINK.
+#'                           Default is determined by SLURM environment variables and at least 1.
+#' @param memory             [\code{int}]\cr
+#'                           Memory for PLINK in Mb.
+#'                           Default is determined by SLURM environment variables and at least 5000.
+#'
+#' @details See PLINK manual \url{https://www.cog-genomics.org/plink/1.9/}.
+#'
+#' @return Captured system output as \code{character} vector.
+#' @export
+#'
+#' @import checkmate
+#'
+plink_sex_imputation <- function(bfile, output.prefix, 
+                                 f.values, ...,
+                                 exec = "plink",
+                                 num.threads = max(1, as.integer(Sys.getenv("SLURM_NPROCS")), na.rm = TRUE),
+                                 memory = max(5000, as.integer(Sys.getenv("SLURM_MEM_PER_CPU")) - 1000, na.rm = TRUE)) {
+  
+  assertions <- checkmate::makeAssertCollection()
+  
+  checkmate::assert_file(sprintf("%s.bed", bfile), add = assertions)
+  checkmate::assert_file(sprintf("%s.bim", bfile), add = assertions)
+  checkmate::assert_file(sprintf("%s.fam", bfile), add = assertions)
+  
+  checkmate::assert_string(output.prefix, add = assertions)
+  checkmate::assert_directory(dirname(output.prefix), add = assertions)
+  
+  checkmate::assert_numeric(f.values, lower = 0, upper = 1, finite = TRUE, any.missing = FALSE, all.missing = FALSE, len = 2, null.ok = FALSE, add = assertions)
+  
+  assert_command(exec, add = assertions)
+  checkmate::assert_int(num.threads, lower = 1, add = assertions)
+  checkmate::assert_int(memory, lower = 1000, add = assertions)
+  
+  checkmate::reportAssertions(assertions)
+  
+  system_call(
+    bin = exec,
+    args = c("--bfile", bfile,
+             "--threads", num.threads,
+             "--memory", memory,
+             "--keep-allele-order",
+             "--impute-sex", f.values,
+             "--allow-extra-chr",
+             "--out", output.prefix, ...)
+  )
+  
+}
