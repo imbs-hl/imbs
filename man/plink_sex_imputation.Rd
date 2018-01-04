@@ -4,10 +4,10 @@
 \alias{plink_sex_imputation}
 \title{Sex imputation with PLINK}
 \usage{
-plink_sex_imputation(bfile, output.prefix, f.values, ..., exec = "plink",
-  num.threads = max(1, as.integer(Sys.getenv("SLURM_NPROCS")), na.rm = TRUE),
-  memory = max(5000, as.integer(Sys.getenv("SLURM_MEM_PER_CPU")) - 1000, na.rm
-  = TRUE))
+plink_sex_imputation(bfile, output.prefix, f.values, ..., bed.file = NULL,
+  bim.file = NULL, fam.file = NULL, exec = "plink", num.threads = max(1,
+  as.integer(Sys.getenv("SLURM_NPROCS")), na.rm = TRUE), memory = max(5000,
+  as.integer(Sys.getenv("SLURM_MEM_PER_CPU")) - 1000, na.rm = TRUE))
 }
 \arguments{
 \item{bfile}{[\code{string}]\cr
@@ -21,6 +21,15 @@ The basename of the new binary PLINK files.}
 
 \item{...}{[\code{character}]\cr
 Additional arguments passed to PLINK.}
+
+\item{bed.file}{[\code{string}]\cr
+Alternative to \code{bfile} interface. Specify \code{bed}, \code{bim} and \code{fam} files individually.}
+
+\item{bim.file}{[\code{string}]\cr
+Alternative to \code{bfile} interface. Specify \code{bed}, \code{bim} and \code{fam} files individually.}
+
+\item{fam.file}{[\code{string}]\cr
+Alternative to \code{bfile} interface. Specify \code{bed}, \code{bim} and \code{fam} files individually.}
 
 \item{exec}{[\code{string}]\cr
 Path of PLINK executable.}

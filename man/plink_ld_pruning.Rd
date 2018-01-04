@@ -5,9 +5,10 @@
 \title{LD pruning with PLINK}
 \usage{
 plink_ld_pruning(bfile, output.prefix, window.size, step.size, threshold, ...,
-  exec = "plink", num.threads = max(1,
-  as.integer(Sys.getenv("SLURM_NPROCS")), na.rm = TRUE), memory = max(5000,
-  as.integer(Sys.getenv("SLURM_MEM_PER_CPU")) - 1000, na.rm = TRUE))
+  bed.file = NULL, bim.file = NULL, fam.file = NULL, exec = "plink",
+  num.threads = max(1, as.integer(Sys.getenv("SLURM_NPROCS")), na.rm = TRUE),
+  memory = max(5000, as.integer(Sys.getenv("SLURM_MEM_PER_CPU")) - 1000, na.rm
+  = TRUE))
 }
 \arguments{
 \item{bfile}{[\code{string}]\cr
@@ -27,6 +28,15 @@ Pairwise \eqn{r^2} threshold.}
 
 \item{...}{[\code{character}]\cr
 Additional arguments passed to PLINK.}
+
+\item{bed.file}{[\code{string}]\cr
+Alternative to \code{bfile} interface. Specify \code{bed}, \code{bim} and \code{fam} files individually.}
+
+\item{bim.file}{[\code{string}]\cr
+Alternative to \code{bfile} interface. Specify \code{bed}, \code{bim} and \code{fam} files individually.}
+
+\item{fam.file}{[\code{string}]\cr
+Alternative to \code{bfile} interface. Specify \code{bed}, \code{bim} and \code{fam} files individually.}
 
 \item{exec}{[\code{string}]\cr
 Path of PLINK executable.}
