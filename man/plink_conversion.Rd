@@ -4,14 +4,17 @@
 \alias{plink_conversion}
 \title{Convert VCF files to PLINK binary files}
 \usage{
-plink_conversion(seq.file, output.prefix, ..., exec = "plink",
-  num.threads = max(1, as.integer(Sys.getenv("SLURM_NPROCS")), na.rm = TRUE),
-  memory = max(5000, as.integer(Sys.getenv("SLURM_MEM_PER_CPU")) - 1000, na.rm
-  = TRUE))
+plink_conversion(vcf.file, ref.file, output.prefix, ..., build = "b37",
+  bcftools.exec = "bcftools", plink.exec = "plink", num.threads = max(1,
+  as.integer(Sys.getenv("SLURM_NPROCS")), na.rm = TRUE), memory = max(5000,
+  as.integer(Sys.getenv("SLURM_MEM_PER_CPU")) - 1000, na.rm = TRUE))
 }
 \arguments{
-\item{seq.file}{[\code{string}]\cr
+\item{vcf.file}{[\code{string}]\cr
 The VCF file path.}
+
+\item{ref.file}{[\code{string}]\cr
+A human reference genome \code{fasta} file to normalize indels against.}
 
 \item{output.prefix}{[\code{string}]\cr
 The basename of the new binary PLINK files.}
@@ -19,7 +22,13 @@ The basename of the new binary PLINK files.}
 \item{...}{[\code{character}]\cr
 Additional arguments passed to PLINK.}
 
-\item{exec}{[\code{string}]\cr
+\item{build}{[\code{string}]\cr
+Human genome build code to split the X chromosome into pseudo-autosomal region and pure X. Default is 'b37' (alias 'hg19').}
+
+\item{bcftools.exec}{[\code{string}]\cr
+Path of bcftools executable.}
+
+\item{plink.exec}{[\code{string}]\cr
 Path of PLINK executable.}
 
 \item{num.threads}{[\code{int}]\cr
@@ -37,5 +46,5 @@ Captured system output as \code{character} vector.
 Convert VCF files to PLINK binary files
 }
 \details{
-See PLINK manual \url{https://www.cog-genomics.org/plink/1.9/}.
+Based on the best practices on \url{http://apol1.blogspot.de/2014/11/best-practice-for-converting-vcf-files.html}. The procedure will take the VCF file, strip the variant IDs, split multi-allelic sites into bi-allelic sites, assign names to make sure indels will not become ambiguous, and finally convert to PLINK format. See PLINK manual \url{https://www.cog-genomics.org/plink/1.9/}.
 }

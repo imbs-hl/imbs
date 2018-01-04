@@ -124,13 +124,19 @@ plink_subset <- function(bfile, output.prefix, remove, keep, exclude, extract, .
 
 #' Convert VCF files to PLINK binary files
 #'
-#' @param seq.file           [\code{string}]\cr
+#' @param vcf.file           [\code{string}]\cr
 #'                           The VCF file path.
+#' @param ref.file           [\code{string}]\cr
+#'                           A human reference genome \code{fasta} file to normalize indels against.
 #' @param output.prefix      [\code{string}]\cr
 #'                           The basename of the new binary PLINK files.
 #' @param ...                [\code{character}]\cr
 #'                           Additional arguments passed to PLINK.
-#' @param exec               [\code{string}]\cr
+#' @param build              [\code{string}]\cr
+#'                           Human genome build code to split the X chromosome into pseudo-autosomal region and pure X. Default is 'b37' (alias 'hg19').
+#' @param bcftools.exec      [\code{string}]\cr
+#'                           Path of bcftools executable.
+#' @param plink.exec         [\code{string}]\cr
 #'                           Path of PLINK executable.
 #' @param num.threads        [\code{int}]\cr
 #'                           Number of CPUs usable by PLINK.
@@ -139,22 +145,27 @@ plink_subset <- function(bfile, output.prefix, remove, keep, exclude, extract, .
 #'                           Memory for PLINK in Mb.
 #'                           Default is determined by SLURM environment variables and at least 5000.
 #'
-#' @details See PLINK manual \url{https://www.cog-genomics.org/plink/1.9/}.
+#' @details Based on the best practices on \url{http://apol1.blogspot.de/2014/11/best-practice-for-converting-vcf-files.html}. The procedure will take the VCF file, strip the variant IDs, split multi-allelic sites into bi-allelic sites, assign names to make sure indels will not become ambiguous, and finally convert to PLINK format. See PLINK manual \url{https://www.cog-genomics.org/plink/1.9/}.
 #'
 #' @return Captured system output as \code{character} vector.
 #' @export
 #'
 #' @import checkmate
 #'
-plink_conversion <- function(seq.file, output.prefix, ..., exec = "plink",
+plink_conversion <- function(vcf.file, ref.file, output.prefix, ..., 
+                             build = "b37",
+                             bcftools.exec = "bcftools", plink.exec = "plink",
                              num.threads = max(1, as.integer(Sys.getenv("SLURM_NPROCS")), na.rm = TRUE),
                              memory = max(5000, as.integer(Sys.getenv("SLURM_MEM_PER_CPU")) - 1000, na.rm = TRUE)) {
   
   assertions <- checkmate::makeAssertCollection()
   
-  checkmate::assert_file(seq.file, add = assertions)
+  checkmate::assert_file(vcf.file, add = assertions)
+  checkmate::assert_file(ref.file, add = assertions)
   checkmate::assert_directory(dirname(output.prefix), add = assertions)
-  assert_command(exec, add = assertions)
+  checkmate::assertChoice(build, c("b36", "hg18", "b37", "hg19", "b38", "hg38"), add = assertions)
+  assert_command(bcftools.exec, add = assertions)
+  assert_command(plink.exec, add = assertions)
   checkmate::assert_int(num.threads, lower = 1, add = assertions)
   checkmate::assert_int(memory, lower = 1000, add = assertions)
   
@@ -162,13 +173,23 @@ plink_conversion <- function(seq.file, output.prefix, ..., exec = "plink",
   
   # Run PLINK
   system_call(
-    bin = exec,
-    args = c("--vcf", seq.file,
+    bin = bcftools.exec,
+    args = c("norm", "-Ou", "-m", "-any", vcf.file,
+             "|",
+             bcftools.exec, "norm", "-Ou", "-f", ref.file,
+             "|",
+             bcftools.exec, "annotate", "-Ob", "-x", "ID", "-I", "+'%CHROM:%POS:%REF:%ALT'",
+             "|",
+             plink.exec, "--bcf", "/dev/stdin",
+             "--keep-allele-order",
+             "--vcf-idspace-to", "_",
+             "--const-fid",
+             "--allow-extra-chr", "0",
+             "--split-x", build, "no-fail",
              "--threads", num.threads,
              "--memory", memory,
              "--make-bed",
-             "--out", output.prefix,
-             ...)
+             "--out", output.prefix, ...)
   )
   
 }
@@ -239,6 +260,69 @@ plink_merge <- function(old.prefix, new.prefix, merge.mode,
              "--merge-mode ", merge.mode,
              "--out", output.prefix,
              ...)
+  )
+  
+}
+
+plink_ld_pruning <- function(bfile, output.prefix, 
+                             window.size, step.size, threshold, ...,
+                             exec = "plink",
+                             num.threads = max(1, as.integer(Sys.getenv("SLURM_NPROCS")), na.rm = TRUE),
+                             memory = max(5000, as.integer(Sys.getenv("SLURM_MEM_PER_CPU")) - 1000, na.rm = TRUE)) {
+  
+  assertions <- checkmate::makeAssertCollection()
+  
+  checkmate::assert_file(sprintf("%s.bed", bfile), add = assertions)
+  checkmate::assert_file(sprintf("%s.bim", bfile), add = assertions)
+  checkmate::assert_file(sprintf("%s.fam", bfile), add = assertions)
+  
+  checkmate::assert_string(output.prefix, add = assertions)
+  checkmate::assert_directory(dirname(output.prefix), add = assertions)
+  
+  if (missing(remove)) {
+    remove <- ""
+  } else {
+    checkmate::assert_file(remove, add = assertions)
+    remove <- sprintf("--remove %s", remove)
+  }
+  if (missing(keep)) {
+    keep <- ""
+  } else {
+    checkmate::assert_file(keep, add = assertions)
+    keep <- sprintf("--keep %s", keep)
+  }
+  
+  if (missing(exclude)) {
+    exclude <- ""
+  } else {
+    checkmate::assert_file(exclude, add = assertions)
+    exclude <- sprintf("--exclude %s", exclude)
+  }
+  if (missing(extract)) {
+    extract <- ""
+  } else {
+    checkmate::assert_file(extract, add = assertions)
+    extract <- sprintf("--extract %s", extract)
+  }
+  
+  assert_command(exec, add = assertions)
+  checkmate::assert_int(num.threads, lower = 1, add = assertions)
+  checkmate::assert_int(memory, lower = 1000, add = assertions)
+  
+  checkmate::reportAssertions(assertions)
+  
+  system_call(
+    bin = exec,
+    args = c("--bfile", bfile,
+             "--threads", num.threads,
+             "--memory", memory*num.threads,
+             remove,
+             keep,
+             extract,
+             exclude,
+             "--make-bed",
+             "--allow-extra-chr",
+             "--out", output.prefix, ...)
   )
   
 }
