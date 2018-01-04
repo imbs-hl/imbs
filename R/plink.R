@@ -389,6 +389,7 @@ plink_sex_imputation <- function(bfile, output.prefix,
              "--keep-allele-order",
              "--impute-sex", f.values,
              "--allow-extra-chr",
+             "--make-bed",
              "--out", output.prefix, ...)
   )
   
