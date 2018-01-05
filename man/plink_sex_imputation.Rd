@@ -7,7 +7,9 @@
 plink_sex_imputation(bfile, output.prefix, f.values, ..., bed.file = NULL,
   bim.file = NULL, fam.file = NULL, exec = "plink", num.threads = max(1,
   as.integer(Sys.getenv("SLURM_NPROCS")), na.rm = TRUE), memory = max(5000,
-  as.integer(Sys.getenv("SLURM_MEM_PER_CPU")) - 1000, na.rm = TRUE))
+  min(as.integer(Sys.getenv("SLURM_MEM_PER_NODE")) - 1000, num.threads *
+  as.integer(Sys.getenv("SLURM_MEM_PER_CPU")) - 1000, na.rm = TRUE), na.rm =
+  TRUE))
 }
 \arguments{
 \item{bfile}{[\code{string}]\cr
@@ -40,7 +42,7 @@ Default is determined by SLURM environment variables and at least 1.}
 
 \item{memory}{[\code{int}]\cr
 Memory for PLINK in Mb.
-Default is determined by SLURM environment variables and at least 5000.}
+Default is determined by minimum of SLURM environment variables \code{SLURM_MEM_PER_CPU} and \code{num.threads * SLURM_MEM_PER_NODE} and at least 5000.}
 }
 \value{
 Captured system output as \code{character} vector.

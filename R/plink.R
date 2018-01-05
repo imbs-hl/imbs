@@ -57,7 +57,7 @@ write_plink_ids <- function(ids, file, update, sample = TRUE) {
 #'                           Default is determined by SLURM environment variables and at least 1.
 #' @param memory             [\code{int}]\cr
 #'                           Memory for PLINK in Mb.
-#'                           Default is determined by SLURM environment variables and at least 5000.
+#'                           Default is determined by minimum of SLURM environment variables \code{SLURM_MEM_PER_CPU} and \code{num.threads * SLURM_MEM_PER_NODE} and at least 5000.
 #'
 #' @details See PLINK manual \url{https://www.cog-genomics.org/plink/1.9/}.
 #'
@@ -70,7 +70,7 @@ plink_subset <- function(bfile, output.prefix, remove, keep, exclude, extract, .
                          bed.file = NULL, bim.file = NULL, fam.file = NULL,
                          exec = "plink",
                          num.threads = max(1, as.integer(Sys.getenv("SLURM_NPROCS")), na.rm = TRUE),
-                         memory = max(5000, as.integer(Sys.getenv("SLURM_MEM_PER_CPU")) - 1000, na.rm = TRUE)) {
+                         memory = max(5000, min(as.integer(Sys.getenv("SLURM_MEM_PER_NODE")) - 1000, num.threads * as.integer(Sys.getenv("SLURM_MEM_PER_CPU")) - 1000, na.rm = TRUE), na.rm = TRUE)) {
   
   assertions <- checkmate::makeAssertCollection()
   
@@ -159,7 +159,7 @@ plink_subset <- function(bfile, output.prefix, remove, keep, exclude, extract, .
 #'                           Default is determined by SLURM environment variables and at least 1.
 #' @param memory             [\code{int}]\cr
 #'                           Memory for PLINK in Mb.
-#'                           Default is determined by SLURM environment variables and at least 5000.
+#'                           Default is determined by minimum of SLURM environment variables \code{SLURM_MEM_PER_CPU} and \code{num.threads * SLURM_MEM_PER_NODE} and at least 5000.
 #'
 #' @details Based on the best practices on \url{http://apol1.blogspot.de/2014/11/best-practice-for-converting-vcf-files.html}. The procedure will take the VCF file, strip the variant IDs, split multi-allelic sites into bi-allelic sites, assign names to make sure indels will not become ambiguous, and finally convert to PLINK format. See PLINK manual \url{https://www.cog-genomics.org/plink/1.9/}.
 #'
@@ -172,7 +172,7 @@ plink_vcf_conversion <- function(vcf.file, ref.file, output.prefix, ...,
                              build = "b37",
                              bcftools.exec = "bcftools", plink.exec = "plink",
                              num.threads = max(1, as.integer(Sys.getenv("SLURM_NPROCS")), na.rm = TRUE),
-                             memory = max(5000, as.integer(Sys.getenv("SLURM_MEM_PER_CPU")) - 1000, na.rm = TRUE)) {
+                             memory = max(5000, min(as.integer(Sys.getenv("SLURM_MEM_PER_NODE")) - 1000, num.threads * as.integer(Sys.getenv("SLURM_MEM_PER_CPU")) - 1000, na.rm = TRUE), na.rm = TRUE)) {
   
   assertions <- checkmate::makeAssertCollection()
   
@@ -241,7 +241,7 @@ plink_vcf_conversion <- function(vcf.file, ref.file, output.prefix, ...,
 #'                         Default is determined by SLURM environment variables and at least 1.
 #' @param memory           [\code{int}]\cr
 #'                         Memory for PLINK in Mb.
-#'                         Default is determined by SLURM environment variables and at least 5000.
+#'                         Default is determined by minimum of SLURM environment variables \code{SLURM_MEM_PER_CPU} and \code{num.threads * SLURM_MEM_PER_NODE} and at least 5000.
 #'
 #' @details See PLINK manual \url{https://www.cog-genomics.org/plink/1.9/}.
 #'
@@ -257,7 +257,7 @@ plink_merge <- function(first.prefix, second.prefix, merge.mode,
                         second.bed.file = NULL, second.bim.file = NULL, second.fam.file = NULL,
                         exec = "plink",
                         num.threads = max(1, as.integer(Sys.getenv("SLURM_NPROCS")), na.rm = TRUE),
-                        memory = max(5000, as.integer(Sys.getenv("SLURM_MEM_PER_CPU")) - 1000, na.rm = TRUE)) {
+                        memory = max(5000, min(as.integer(Sys.getenv("SLURM_MEM_PER_NODE")) - 1000, num.threads * as.integer(Sys.getenv("SLURM_MEM_PER_CPU")) - 1000, na.rm = TRUE), na.rm = TRUE)) {
   
   assertions <- checkmate::makeAssertCollection()
   
@@ -339,7 +339,7 @@ plink_merge <- function(first.prefix, second.prefix, merge.mode,
 #'                           Default is determined by SLURM environment variables and at least 1.
 #' @param memory             [\code{int}]\cr
 #'                           Memory for PLINK in Mb.
-#'                           Default is determined by SLURM environment variables and at least 5000.
+#'                           Default is determined by minimum of SLURM environment variables \code{SLURM_MEM_PER_CPU} and \code{num.threads * SLURM_MEM_PER_NODE} and at least 5000.
 #'
 #' @details See PLINK manual \url{https://www.cog-genomics.org/plink/1.9/}.
 #'
@@ -353,7 +353,7 @@ plink_ld_pruning <- function(bfile, output.prefix,
                              bed.file = NULL, bim.file = NULL, fam.file = NULL,
                              exec = "plink",
                              num.threads = max(1, as.integer(Sys.getenv("SLURM_NPROCS")), na.rm = TRUE),
-                             memory = max(5000, as.integer(Sys.getenv("SLURM_MEM_PER_CPU")) - 1000, na.rm = TRUE)) {
+                             memory = max(5000, min(as.integer(Sys.getenv("SLURM_MEM_PER_NODE")) - 1000, num.threads * as.integer(Sys.getenv("SLURM_MEM_PER_CPU")) - 1000, na.rm = TRUE), na.rm = TRUE)) {
   
   assertions <- checkmate::makeAssertCollection()
   
@@ -418,7 +418,7 @@ plink_ld_pruning <- function(bfile, output.prefix,
 #'                           Default is determined by SLURM environment variables and at least 1.
 #' @param memory             [\code{int}]\cr
 #'                           Memory for PLINK in Mb.
-#'                           Default is determined by SLURM environment variables and at least 5000.
+#'                           Default is determined by minimum of SLURM environment variables \code{SLURM_MEM_PER_CPU} and \code{num.threads * SLURM_MEM_PER_NODE} and at least 5000.
 #'
 #' @details See PLINK manual \url{https://www.cog-genomics.org/plink/1.9/}.
 #'
@@ -432,7 +432,7 @@ plink_sex_imputation <- function(bfile, output.prefix,
                                  bed.file = NULL, bim.file = NULL, fam.file = NULL,
                                  exec = "plink",
                                  num.threads = max(1, as.integer(Sys.getenv("SLURM_NPROCS")), na.rm = TRUE),
-                                 memory = max(5000, as.integer(Sys.getenv("SLURM_MEM_PER_CPU")) - 1000, na.rm = TRUE)) {
+                                 memory = max(5000, min(as.integer(Sys.getenv("SLURM_MEM_PER_NODE")) - 1000, num.threads * as.integer(Sys.getenv("SLURM_MEM_PER_CPU")) - 1000, na.rm = TRUE), na.rm = TRUE)) {
   
   assertions <- checkmate::makeAssertCollection()
   
@@ -498,7 +498,7 @@ plink_sex_imputation <- function(bfile, output.prefix,
 #'                           Default is determined by SLURM environment variables and at least 1.
 #' @param memory             [\code{int}]\cr
 #'                           Memory for PLINK in Mb.
-#'                           Default is determined by SLURM environment variables and at least 5000.
+#'                           Default is determined by minimum of SLURM environment variables \code{SLURM_MEM_PER_NODE} and \code{num.threads * SLURM_MEM_PER_CPU} and at least 5000.
 #'
 #' @details See PLINK manual \url{https://www.cog-genomics.org/plink/1.9/}.
 #'
@@ -512,7 +512,7 @@ plink_merge_list <- function(bfile, output.prefix,
                                  bed.file = NULL, bim.file = NULL, fam.file = NULL,
                                  exec = "plink",
                                  num.threads = max(1, as.integer(Sys.getenv("SLURM_NPROCS")), na.rm = TRUE),
-                                 memory = max(5000, as.integer(Sys.getenv("SLURM_MEM_PER_CPU")) - 1000, na.rm = TRUE)) {
+                                 memory = max(5000, min(as.integer(Sys.getenv("SLURM_MEM_PER_NODE")) - 1000, num.threads * as.integer(Sys.getenv("SLURM_MEM_PER_CPU")) - 1000, na.rm = TRUE), na.rm = TRUE)) {
   
   assertions <- checkmate::makeAssertCollection()
   
