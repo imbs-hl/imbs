@@ -185,9 +185,9 @@ harmonize_genotypes <- function(input, ref, output,
   checkmate::assertNumber(min.ld, lower = 0, upper = 1, finite = TRUE, null.ok = FALSE, add = assertions)
   min.ld <- sprintf("--min-ld %f", min.ld)
   checkmate::assertInt(min.variants, lower = 1, null.ok = FALSE, add = assertions)
-  min.variants <- sprintf("--min-variants %f", min.variants)
+  min.variants <- sprintf("--min-variants %d", min.variants)
   checkmate::assertInt(variants, lower = 1, null.ok = FALSE, add = assertions)
-  variants <- sprintf("--variants %f", variants)
+  variants <- sprintf("--variants %d", variants)
   checkmate::assertFlag(check.ld, add = assertions)
   if (check.ld) {
     check.ld <- "--check-ld"
