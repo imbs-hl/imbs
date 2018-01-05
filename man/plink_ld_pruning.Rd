@@ -6,10 +6,7 @@
 \usage{
 plink_ld_pruning(bfile, output.prefix, window.size, step.size, threshold, ...,
   bed.file = NULL, bim.file = NULL, fam.file = NULL, exec = "plink",
-  num.threads = max(1, as.integer(Sys.getenv("SLURM_NPROCS")), na.rm = TRUE),
-  memory = max(5000, min(as.integer(Sys.getenv("SLURM_MEM_PER_NODE")) - 1000,
-  num.threads * as.integer(Sys.getenv("SLURM_MEM_PER_CPU")) - 1000, na.rm =
-  TRUE), na.rm = TRUE))
+  num.threads, memory)
 }
 \arguments{
 \item{bfile}{[\code{string}]\cr
