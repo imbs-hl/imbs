@@ -54,7 +54,7 @@
 #' @param update.reference.allele [\code{flag}]\cr
 #'                                Make sure the output data uses the same reference allele as the reference data set.
 #' @param exec                    [\code{string}]\cr
-#'                                Path of \code{GenotypeHarmonizer} executable.
+#'                                Path of \code{GenotypeHarmonizer} executable. You can also give a \code{JAVA} call: \code{java -Xmx5g -jar <path/to/GenotypeHarmonizer.jar>}.
 #'
 #' @return Captured system output as \code{character} vector.
 #' @export
@@ -205,20 +205,20 @@ harmonize_genotypes <- function(input, ref, output,
   
   if (grepl("java", exec)) {
     exec <- strsplit(exec, " ")
+    n <- length(exec)
     assertCommand(exec[1], add = assertions)
-    checkmate::assertChoice(exec[2], "-jar")
-    checkmate::assertFile(exec[3])
-    jar <- exec[2:3]
+    checkmate::assertFile(exec[n])
+    java_opts <- exec[2:n]
     exec <- exec[1]
   } else {
     assertCommand(exec, add = assertions)
-    jar <- ""
+    java_opts <- ""
   }
   
   checkmate::reportAssertions(assertions)
   
   system_call(exec,
-              args = c(jar,
+              args = c(java_opts,
                        "--input", input,
                        input.type,
                        ref,

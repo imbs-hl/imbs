@@ -86,7 +86,7 @@ If there are not enough variants in LD and the minor allele frequency (MAF) of a
 Make sure the output data uses the same reference allele as the reference data set.}
 
 \item{exec}{[\code{string}]\cr
-Path of \code{GenotypeHarmonizer} executable.}
+Path of \code{GenotypeHarmonizer} executable. You can also give a \code{JAVA} call: \code{java -Xmx5g -jar <path/to/GenotypeHarmonizer.jar>}.}
 }
 \value{
 Captured system output as \code{character} vector.
