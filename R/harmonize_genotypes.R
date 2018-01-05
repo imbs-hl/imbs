@@ -204,7 +204,7 @@ harmonize_genotypes <- function(input, ref, output,
   }
   
   if (grepl("java", exec)) {
-    exec <- strsplit(exec, " ")
+    exec <- unlist(strsplit(exec, " "))
     n <- length(exec)
     assertCommand(exec[1], add = assertions)
     checkmate::assertFile(exec[n])
