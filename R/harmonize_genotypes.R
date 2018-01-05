@@ -108,7 +108,7 @@ harmonize_genotypes <- function(input, ref, output,
     ref <- ""
   }
   
-  checkmate::assertPathForOutput(dirname(output), add = assertions)
+  checkmate::assertDirectory(dirname(output), add = assertions)
   
   if (!missing(input.type)) {
     checkmate::assertChoice(input.type, names(input.types))
