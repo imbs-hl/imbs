@@ -37,7 +37,7 @@
 #'                                The minimum MACH R2 measure to include SNPs.
 #' @param variant.pos.filter.list [\code{string}]\cr
 #'                                Path to file with variant \code{CHR\\tPOS} or \code{CHR:POS} to include from input data.
-#' @param ambigouous.snp.filter   [\code{string}]\cr
+#' @param ambiguous.snp.filter    [\code{string}]\cr
 #'                                Filter out ambiguous SNPs (A/T, C/G) SNPs.
 #' @param update.id               [\code{flag}]\cr
 #'                                Update the variant identifiers using the reference data. The identifiers of the output data will be the same as the reference data.
@@ -61,7 +61,7 @@
 #'
 harmonize_genotypes <- function(input, ref, output,
                                 input.type, ref.type, output.type,
-                                input.prob = 0.4, force.chr, call.rate.filter = 0, chr.filter, hwe.filter = 1, maf.filter = 0, sample.filter.list, variant.filter.list, mach.r2.filter = 0, variant.pos.filter.list, ambigouous.snp.filter = FALSE,
+                                input.prob = 0.4, force.chr, call.rate.filter = 0, chr.filter, hwe.filter = 1, maf.filter = 0, sample.filter.list, variant.filter.list, mach.r2.filter = 0, variant.pos.filter.list, ambiguous.snp.filter = FALSE,
                                 update.id = FALSE, min.ld = 0.3, min.variants = 3, variants = 100, check.ld = FALSE, maf.align = 0, update.reference.allele = FALSE,
                                 exec = "GenotypeHarmonizer") {
   
@@ -168,11 +168,11 @@ harmonize_genotypes <- function(input, ref, output,
   } else {
     variant.pos.filter.list <- ""
   }
-  checkmate::assertFlag(ambigouous.snp.filter, add = assertions)
-  if (ambigouous.snp.filter) {
-    ambigouous.snp.filter <- "--ambiguousSnpFilter"
+  checkmate::assertFlag(ambiguous.snp.filter, add = assertions)
+  if (ambiguous.snp.filter) {
+    ambiguous.snp.filter <- "--ambiguousSnpFilter"
   } else {
-    ambigouous.snp.filter <- ""
+    ambiguous.snp.filter <- ""
   }
   
   # Strand alignment arguments ----
@@ -234,7 +234,7 @@ harmonize_genotypes <- function(input, ref, output,
                        variant.filter.list, 
                        mach.r2.filter,
                        variant.pos.filter.list,
-                       ambigouous.snp.filter,
+                       ambiguous.snp.filter,
                        update.id, 
                        min.ld , 
                        min.variants,
