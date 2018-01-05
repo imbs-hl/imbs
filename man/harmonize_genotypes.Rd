@@ -7,10 +7,10 @@
 harmonize_genotypes(input, ref, output, input.type, ref.type, output.type,
   input.prob = 0.4, force.chr, call.rate.filter = 0, chr.filter,
   hwe.filter = 1, maf.filter = 0, sample.filter.list, variant.filter.list,
-  mach.r2.filter = 0, variant.pos.filter.list,
-  ambigouous.snp.filter = FALSE, update.id = FALSE, min.ld = 0.3,
-  min.variants = 3, variants = 100, check.ld = FALSE, maf.align = 0,
-  update.reference.allele = FALSE, exec = "GenotypeHarmonizer")
+  mach.r2.filter = 0, variant.pos.filter.list, ambiguous.snp.filter = FALSE,
+  update.id = FALSE, min.ld = 0.3, min.variants = 3, variants = 100,
+  check.ld = FALSE, maf.align = 0, update.reference.allele = FALSE,
+  exec = "GenotypeHarmonizer")
 }
 \arguments{
 \item{input}{[\code{string}]\cr
@@ -61,7 +61,7 @@ The minimum MACH R2 measure to include SNPs.}
 \item{variant.pos.filter.list}{[\code{string}]\cr
 Path to file with variant \code{CHR\\tPOS} or \code{CHR:POS} to include from input data.}
 
-\item{ambigouous.snp.filter}{[\code{string}]\cr
+\item{ambiguous.snp.filter}{[\code{string}]\cr
 Filter out ambiguous SNPs (A/T, C/G) SNPs.}
 
 \item{update.id}{[\code{flag}]\cr
