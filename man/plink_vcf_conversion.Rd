@@ -5,11 +5,7 @@
 \title{Convert VCF files to PLINK binary files}
 \usage{
 plink_vcf_conversion(vcf.file, ref.file, output.prefix, ..., build = "b37",
-  bcftools.exec = "bcftools", plink.exec = "plink", num.threads = max(1,
-  as.integer(Sys.getenv("SLURM_NPROCS")), na.rm = TRUE), memory = max(5000,
-  min(as.integer(Sys.getenv("SLURM_MEM_PER_NODE")) - 1000, num.threads *
-  as.integer(Sys.getenv("SLURM_MEM_PER_CPU")) - 1000, na.rm = TRUE), na.rm =
-  TRUE))
+  bcftools.exec = "bcftools", plink.exec = "plink", num.threads, memory)
 }
 \arguments{
 \item{vcf.file}{[\code{string}]\cr

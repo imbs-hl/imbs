@@ -69,8 +69,8 @@ write_plink_ids <- function(ids, file, update, sample = TRUE) {
 plink_subset <- function(bfile, output.prefix, remove, keep, exclude, extract, ...,
                          bed.file = NULL, bim.file = NULL, fam.file = NULL,
                          exec = "plink",
-                         num.threads = max(1, as.integer(Sys.getenv("SLURM_NPROCS")), na.rm = TRUE),
-                         memory = max(5000, min(as.integer(Sys.getenv("SLURM_MEM_PER_NODE")) - 1000, num.threads * as.integer(Sys.getenv("SLURM_MEM_PER_CPU")) - 1000, na.rm = TRUE), na.rm = TRUE)) {
+                         num.threads,
+                         memory) {
   
   assertions <- checkmate::makeAssertCollection()
   
@@ -116,7 +116,17 @@ plink_subset <- function(bfile, output.prefix, remove, keep, exclude, extract, .
   }
   
   assert_command(exec, add = assertions)
+  
+  if (missing(num.threads)) {   
+    num.threads <- max(1, as.integer(Sys.getenv("SLURM_CPUS_PER_TASK")), na.rm = TRUE)  
+  }  
   checkmate::assert_int(num.threads, lower = 1, add = assertions)
+  if (missing(memory)) {  
+    memory = max(5000,     
+                 min(as.integer(Sys.getenv("SLURM_MEM_PER_NODE")) - 1000,           
+                     num.threads * as.integer(Sys.getenv("SLURM_MEM_PER_CPU")) - 1000, na.rm = TRUE),                 
+                 na.rm = TRUE)  
+  }  
   checkmate::assert_int(memory, lower = 1000, add = assertions)
   
   checkmate::reportAssertions(assertions)
@@ -171,8 +181,8 @@ plink_subset <- function(bfile, output.prefix, remove, keep, exclude, extract, .
 plink_vcf_conversion <- function(vcf.file, ref.file, output.prefix, ..., 
                              build = "b37",
                              bcftools.exec = "bcftools", plink.exec = "plink",
-                             num.threads = max(1, as.integer(Sys.getenv("SLURM_NPROCS")), na.rm = TRUE),
-                             memory = max(5000, min(as.integer(Sys.getenv("SLURM_MEM_PER_NODE")) - 1000, num.threads * as.integer(Sys.getenv("SLURM_MEM_PER_CPU")) - 1000, na.rm = TRUE), na.rm = TRUE)) {
+                             num.threads,
+                             memory) {
   
   assertions <- checkmate::makeAssertCollection()
   
@@ -180,9 +190,19 @@ plink_vcf_conversion <- function(vcf.file, ref.file, output.prefix, ...,
   checkmate::assert_file(ref.file, add = assertions)
   checkmate::assert_directory(dirname(output.prefix), add = assertions)
   checkmate::assertChoice(build, c("b36", "hg18", "b37", "hg19", "b38", "hg38"), add = assertions)
+  
   assert_command(bcftools.exec, add = assertions)
   assert_command(plink.exec, add = assertions)
+  
+  if (missing(num.threads)) {   
+    num.threads <- max(1, as.integer(Sys.getenv("SLURM_CPUS_PER_TASK")), na.rm = TRUE)  
+  } 
   checkmate::assert_int(num.threads, lower = 1, add = assertions)
+  if (missing(memory)) {  
+    memory = max(5000,       
+                 min(as.integer(Sys.getenv("SLURM_MEM_PER_NODE")) - 1000,              
+                     num.threads * as.integer(Sys.getenv("SLURM_MEM_PER_CPU")) - 1000, na.rm = TRUE),                   na.rm = TRUE)  
+  } 
   checkmate::assert_int(memory, lower = 1000, add = assertions)
   
   checkmate::reportAssertions(assertions)
@@ -198,7 +218,6 @@ plink_vcf_conversion <- function(vcf.file, ref.file, output.prefix, ...,
              "|",
              plink.exec, "--bcf", "/dev/stdin",
              "--vcf-idspace-to", "_",
-             "--const-fid",
              "--keep-allele-order",
              "--allow-extra-chr", "0",
              "--split-x", build, "no-fail",
@@ -256,8 +275,8 @@ plink_merge <- function(first.prefix, second.prefix, merge.mode,
                         first.bed.file = NULL, first.bim.file = NULL, first.fam.file = NULL,
                         second.bed.file = NULL, second.bim.file = NULL, second.fam.file = NULL,
                         exec = "plink",
-                        num.threads = max(1, as.integer(Sys.getenv("SLURM_NPROCS")), na.rm = TRUE),
-                        memory = max(5000, min(as.integer(Sys.getenv("SLURM_MEM_PER_NODE")) - 1000, num.threads * as.integer(Sys.getenv("SLURM_MEM_PER_CPU")) - 1000, na.rm = TRUE), na.rm = TRUE)) {
+                        num.threads,
+                        memory) {
   
   assertions <- checkmate::makeAssertCollection()
   
@@ -291,7 +310,16 @@ plink_merge <- function(first.prefix, second.prefix, merge.mode,
   
   assert_command(exec, add = assertions)
   
+  if (missing(num.threads)) {   
+    num.threads <- max(1, as.integer(Sys.getenv("SLURM_CPUS_PER_TASK")), na.rm = TRUE) 
+  }   
   checkmate::assert_int(num.threads, lower = 1, add = assertions)
+  if (missing(memory)) {   
+    memory = max(5000,           
+                 min(as.integer(Sys.getenv("SLURM_MEM_PER_NODE")) - 1000,                    
+                     num.threads * as.integer(Sys.getenv("SLURM_MEM_PER_CPU")) - 1000, na.rm = TRUE),      
+                 na.rm = TRUE) 
+  }  
   checkmate::assert_int(memory, lower = 1000, add = assertions)
   
   checkmate::reportAssertions(assertions)
@@ -352,8 +380,8 @@ plink_ld_pruning <- function(bfile, output.prefix,
                              window.size, step.size, threshold, ...,
                              bed.file = NULL, bim.file = NULL, fam.file = NULL,
                              exec = "plink",
-                             num.threads = max(1, as.integer(Sys.getenv("SLURM_NPROCS")), na.rm = TRUE),
-                             memory = max(5000, min(as.integer(Sys.getenv("SLURM_MEM_PER_NODE")) - 1000, num.threads * as.integer(Sys.getenv("SLURM_MEM_PER_CPU")) - 1000, na.rm = TRUE), na.rm = TRUE)) {
+                             num.threads,
+                             memory) {
   
   assertions <- checkmate::makeAssertCollection()
   
@@ -377,7 +405,17 @@ plink_ld_pruning <- function(bfile, output.prefix,
   checkmate::assert_number(threshold, lower = 0, upper = 1, add = assertions)
   
   assert_command(exec, add = assertions)
+  
+  if (missing(num.threads)) {  
+    num.threads <- max(1, as.integer(Sys.getenv("SLURM_CPUS_PER_TASK")), na.rm = TRUE) 
+  }  
   checkmate::assert_int(num.threads, lower = 1, add = assertions)
+  if (missing(memory)) { 
+    memory = max(5000,       
+                 min(as.integer(Sys.getenv("SLURM_MEM_PER_NODE")) - 1000,                   
+                     num.threads * as.integer(Sys.getenv("SLURM_MEM_PER_CPU")) - 1000, na.rm = TRUE),                
+                 na.rm = TRUE)  
+  }   
   checkmate::assert_int(memory, lower = 1000, add = assertions)
   
   checkmate::reportAssertions(assertions)
@@ -431,8 +469,8 @@ plink_sex_imputation <- function(bfile, output.prefix,
                                  f.values, ...,
                                  bed.file = NULL, bim.file = NULL, fam.file = NULL,
                                  exec = "plink",
-                                 num.threads = max(1, as.integer(Sys.getenv("SLURM_NPROCS")), na.rm = TRUE),
-                                 memory = max(5000, min(as.integer(Sys.getenv("SLURM_MEM_PER_NODE")) - 1000, num.threads * as.integer(Sys.getenv("SLURM_MEM_PER_CPU")) - 1000, na.rm = TRUE), na.rm = TRUE)) {
+                                 num.threads,
+                                 memory) {
   
   assertions <- checkmate::makeAssertCollection()
   
@@ -454,7 +492,16 @@ plink_sex_imputation <- function(bfile, output.prefix,
   checkmate::assert_numeric(f.values, lower = 0, upper = 1, finite = TRUE, any.missing = FALSE, all.missing = FALSE, len = 2, null.ok = FALSE, add = assertions)
   
   assert_command(exec, add = assertions)
+  
+  if (missing(num.threads)) {     
+    num.threads <- max(1, as.integer(Sys.getenv("SLURM_CPUS_PER_TASK")), na.rm = TRUE)   
+  }   
   checkmate::assert_int(num.threads, lower = 1, add = assertions)
+  if (missing(memory)) {     
+    memory = max(5000,                   
+                 min(as.integer(Sys.getenv("SLURM_MEM_PER_NODE")) - 1000,                       num.threads * as.integer(Sys.getenv("SLURM_MEM_PER_CPU")) - 1000, na.rm = TRUE),                   
+                 na.rm = TRUE)   
+  }   
   checkmate::assert_int(memory, lower = 1000, add = assertions)
   
   checkmate::reportAssertions(assertions)
@@ -511,8 +558,8 @@ plink_merge_list <- function(bfile, output.prefix,
                                  merge.list, merge.mode, ...,
                                  bed.file = NULL, bim.file = NULL, fam.file = NULL,
                                  exec = "plink",
-                                 num.threads = max(1, as.integer(Sys.getenv("SLURM_NPROCS")), na.rm = TRUE),
-                                 memory = max(5000, min(as.integer(Sys.getenv("SLURM_MEM_PER_NODE")) - 1000, num.threads * as.integer(Sys.getenv("SLURM_MEM_PER_CPU")) - 1000, na.rm = TRUE), na.rm = TRUE)) {
+                                 num.threads,
+                                 memory) {
   
   assertions <- checkmate::makeAssertCollection()
   
@@ -541,7 +588,19 @@ plink_merge_list <- function(bfile, output.prefix,
   }
   
   assert_command(exec, add = assertions)
+  
+  if (missing(num.threads)) {
+    num.threads <- max(1, as.integer(Sys.getenv("SLURM_CPUS_PER_TASK")),
+                       na.rm = TRUE)
+  }
   checkmate::assert_int(num.threads, lower = 1, add = assertions)
+  
+  if (missing(memory)) {
+    memory = max(5000, 
+                 min(as.integer(Sys.getenv("SLURM_MEM_PER_NODE")) - 1000, 
+                     num.threads * as.integer(Sys.getenv("SLURM_MEM_PER_CPU")) - 1000, na.rm = TRUE), 
+                 na.rm = TRUE)
+  }
   checkmate::assert_int(memory, lower = 1000, add = assertions)
   
   checkmate::reportAssertions(assertions)
