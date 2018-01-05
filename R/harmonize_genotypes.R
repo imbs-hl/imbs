@@ -37,7 +37,7 @@
 #'                                The minimum MACH R2 measure to include SNPs.
 #' @param variant.pos.filter.list [\code{string}]\cr
 #'                                Path to file with variant \code{CHR\\tPOS} or \code{CHR:POS} to include from input data.
-#' @param ambiguous.snp.filter    [\code{string}]\cr
+#' @param ambiguous.snp.filter    [\code{flag}]\cr
 #'                                Filter out ambiguous SNPs (A/T, C/G) SNPs.
 #' @param update.id               [\code{flag}]\cr
 #'                                Update the variant identifiers using the reference data. The identifiers of the output data will be the same as the reference data.
@@ -54,7 +54,7 @@
 #' @param update.reference.allele [\code{flag}]\cr
 #'                                Make sure the output data uses the same reference allele as the reference data set.
 #' @param exec                    [\code{string}]\cr
-#'                                Path of \code{GenotypeHarmonizer} executable.
+#'                                Path of \code{GenotypeHarmonizer} executable. You can also give a \code{JAVA} call: \code{java -Xmx5g -jar <path/to/GenotypeHarmonizer.jar>}.
 #'
 #' @return Captured system output as \code{character} vector.
 #' @export
@@ -108,7 +108,7 @@ harmonize_genotypes <- function(input, ref, output,
     ref <- ""
   }
   
-  checkmate::assertPathForOutput(dirname(output), add = assertions)
+  checkmate::assertDirectory(dirname(output), add = assertions)
   
   if (!missing(input.type)) {
     checkmate::assertChoice(input.type, names(input.types))
@@ -184,10 +184,10 @@ harmonize_genotypes <- function(input, ref, output,
   }
   checkmate::assertNumber(min.ld, lower = 0, upper = 1, finite = TRUE, null.ok = FALSE, add = assertions)
   min.ld <- sprintf("--min-ld %f", min.ld)
-  checkmate::assertInt(min.variants, lower = 1, finite = TRUE, null.ok = FALSE, add = assertions)
-  min.variants <- sprintf("--min-variants %f", min.variants)
-  checkmate::assertInt(variants, lower = 1, finite = TRUE, null.ok = FALSE, add = assertions)
-  variants <- sprintf("--variants %f", variants)
+  checkmate::assertInt(min.variants, lower = 1, null.ok = FALSE, add = assertions)
+  min.variants <- sprintf("--min-variants %d", min.variants)
+  checkmate::assertInt(variants, lower = 1, null.ok = FALSE, add = assertions)
+  variants <- sprintf("--variants %d", variants)
   checkmate::assertFlag(check.ld, add = assertions)
   if (check.ld) {
     check.ld <- "--check-ld"
@@ -204,21 +204,21 @@ harmonize_genotypes <- function(input, ref, output,
   }
   
   if (grepl("java", exec)) {
-    exec <- strsplit(exec, " ")
+    exec <- unlist(strsplit(exec, " "))
+    n <- length(exec)
     assertCommand(exec[1], add = assertions)
-    checkmate::assertChoice(exec[2], "-jar")
-    checkmate::assertFile(exec[3])
-    jar <- exec[2:3]
+    checkmate::assertFile(exec[n])
+    java_opts <- exec[2:n]
     exec <- exec[1]
   } else {
     assertCommand(exec, add = assertions)
-    jar <- ""
+    java_opts <- ""
   }
   
   checkmate::reportAssertions(assertions)
   
   system_call(exec,
-              args = c(jar,
+              args = c(java_opts,
                        "--input", input,
                        input.type,
                        ref,

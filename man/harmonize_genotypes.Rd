@@ -61,7 +61,7 @@ The minimum MACH R2 measure to include SNPs.}
 \item{variant.pos.filter.list}{[\code{string}]\cr
 Path to file with variant \code{CHR\\tPOS} or \code{CHR:POS} to include from input data.}
 
-\item{ambiguous.snp.filter}{[\code{string}]\cr
+\item{ambiguous.snp.filter}{[\code{flag}]\cr
 Filter out ambiguous SNPs (A/T, C/G) SNPs.}
 
 \item{update.id}{[\code{flag}]\cr
@@ -86,7 +86,7 @@ If there are not enough variants in LD and the minor allele frequency (MAF) of a
 Make sure the output data uses the same reference allele as the reference data set.}
 
 \item{exec}{[\code{string}]\cr
-Path of \code{GenotypeHarmonizer} executable.}
+Path of \code{GenotypeHarmonizer} executable. You can also give a \code{JAVA} call: \code{java -Xmx5g -jar <path/to/GenotypeHarmonizer.jar>}.}
 }
 \value{
 Captured system output as \code{character} vector.
