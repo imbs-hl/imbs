@@ -4,8 +4,13 @@
 \alias{harmonize_genotypes}
 \title{Genotype harmonization}
 \usage{
-harmonize_genotypes(input, ref, output, inputType, refType, outputType, ...,
-  exec = "GenotypeHarmonizer")
+harmonize_genotypes(input, ref, output, input.type, ref.type, output.type,
+  input.prob = 0.4, force.chr, call.rate.filter = 0, chr.filter,
+  hwe.filter = 1, maf.filter = 0, sample.filter.list, variant.filter.list,
+  mach.r2.filter = 0, variant.pos.filter.list,
+  ambigouous.snp.filter = FALSE, update.id = FALSE, min.ld = 0.3,
+  min.variants = 3, variants = 100, check.ld = FALSE, maf.align = 0,
+  update.reference.allele = FALSE, exec = "GenotypeHarmonizer")
 }
 \arguments{
 \item{input}{[\code{string}]\cr
@@ -17,17 +22,68 @@ The base path of the reference data used for alignment. The extensions are deter
 \item{output}{[\code{string}]\cr
 The base path of the output data.}
 
-\item{inputType}{[\code{string}]\cr
+\item{input.type}{[\code{string}]\cr
 The input data type. If not defined will attempt to automatically select the first matching dataset on the specified path.}
 
-\item{refType}{[\code{string}]\cr
+\item{ref.type}{[\code{string}]\cr
 The input data type. If not defined will attempt to automatically select the first matching dataset on the specified path.}
 
-\item{outputType}{[\code{string}]\cr
-The output data type. Defaults to --inputType.}
+\item{output.type}{[\code{string}]\cr
+The output data type. Defaults to --input.type.}
 
-\item{...}{[\code{character}]\cr
-Other options passed to \code{GenotypeHarmonizer}.}
+\item{input.prob}{[\code{number}]\cr
+The minimum posterior probability to call genotypes in the input data. Defaults to \code{0.4}.}
+
+\item{force.chr}{[\code{int} or \code{X, Y, MT}]\cr
+\code{SHAPEIT2} does not output the sequence name in the first column of the haplotype file and for \code{GEN} files this can also be the case. Use this option to force the chromosome for all variants. This option is only valid in combination with \code{input.type} \code{SHAPEIT2} and \code{input.type} \code{GEN}.}
+
+\item{call.rate.filter}{[\code{number}]\cr
+The minimum call rate to include variant from input data.}
+
+\item{chr.filter}{[\code{int} or \code{X, Y, MT}]\cr
+Filter input data on chromosome.}
+
+\item{hwe.filter}{[\code{number}]\cr
+The minimum hardy weinberg equilibrium p-value to include variant from input data.}
+
+\item{maf.filter}{[\code{number}]\cr
+The minimum minor allele frequency to include variant from input data.}
+
+\item{sample.filter.list}{[\code{string}]\cr
+Path to file with samples IDs to include from input data. For plink data and oxford sample files only the sample id (column 2) is used.}
+
+\item{variant.filter.list}{[\code{string}]\cr
+Path to file with variant IDs to include from input data.}
+
+\item{mach.r2.filter}{[\code{number}]\cr
+The minimum MACH R2 measure to include SNPs.}
+
+\item{variant.pos.filter.list}{[\code{string}]\cr
+Path to file with variant \code{CHR\\tPOS} or \code{CHR:POS} to include from input data.}
+
+\item{ambigouous.snp.filter}{[\code{string}]\cr
+Filter out ambiguous SNPs (A/T, C/G) SNPs.}
+
+\item{update.id}{[\code{flag}]\cr
+Update the variant identifiers using the reference data. The identifiers of the output data will be the same as the reference data.}
+
+\item{min.ld}{[\code{number}]\cr
+The minimum LD (\eqn{r^2}) between the variant to align and potential supporting variants. Defaults to \code{0.3}.}
+
+\item{min.variants}{[\code{int}]\cr
+The minimum number of supporting variant before before we can do an alignment. Defaults to \code{3}.}
+
+\item{variants}{[\code{int}]\cr
+Number of flanking variants to consider. Defaults to \code{100}.}
+
+\item{check.ld}{[\code{flag}]\cr
+Also check the LD structure of non AT and non GC variants. Variants that do not pass the check are excluded.}
+
+\item{maf.align}{[\code{number}]\cr
+If there are not enough variants in LD and the minor allele frequency (MAF) of a variant <= the specified value in both study as in reference then the minor allele can be used as a backup for alignment. Defaults to \code{0}.}
+
+\item{update.reference.allele}{[\code{flag}]\cr
+Make sure the output data uses the same reference allele as the reference data set.}
 
 \item{exec}{[\code{string}]\cr
 Path of \code{GenotypeHarmonizer} executable.}
