@@ -37,7 +37,7 @@
 #'                                The minimum MACH R2 measure to include SNPs.
 #' @param variant.pos.filter.list [\code{string}]\cr
 #'                                Path to file with variant \code{CHR\\tPOS} or \code{CHR:POS} to include from input data.
-#' @param ambiguous.snp.filter    [\code{string}]\cr
+#' @param ambiguous.snp.filter    [\code{flag}]\cr
 #'                                Filter out ambiguous SNPs (A/T, C/G) SNPs.
 #' @param update.id               [\code{flag}]\cr
 #'                                Update the variant identifiers using the reference data. The identifiers of the output data will be the same as the reference data.
