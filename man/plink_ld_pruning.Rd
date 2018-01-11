@@ -19,7 +19,7 @@ The basename of the new binary PLINK files.}
 Window size in kilobase.}
 
 \item{step.size}{[\code{int}]\cr
-Step size in kilobase.}
+Step size in variant counts.}
 
 \item{threshold}{[\code{number}]\cr
 Pairwise \eqn{r^2} threshold.}
