@@ -349,7 +349,7 @@ plink_merge <- function(first.prefix, second.prefix, merge.mode,
 #' @param window.size        [\code{int}]\cr
 #'                           Window size in kilobase.
 #' @param step.size          [\code{int}]\cr
-#'                           Step size in kilobase.
+#'                           Step size in variant counts.
 #' @param chr                [\code{number}]\cr
 #'                           Restrict LD pruning to specified chromosome.
 #' @param threshold          [\code{number}]\cr
@@ -437,7 +437,7 @@ plink_ld_pruning <- function(bfile, output.prefix,
              "--keep-allele-order",
              "--allow-extra-chr", "0",
              chr,
-             "--indep-pairwise", sprintf("%dkb", window.size), sprintf("%dkb",step.size), threshold,
+             "--indep-pairwise", sprintf("%dkb", window.size), step.size, threshold,
              "--out", output.prefix, ...)
   )
   
