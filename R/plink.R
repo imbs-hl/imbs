@@ -349,7 +349,9 @@ plink_merge <- function(first.prefix, second.prefix, merge.mode,
 #' @param window.size        [\code{int}]\cr
 #'                           Window size in kilobase.
 #' @param step.size          [\code{int}]\cr
-#'                           Step size in kilobase.
+#'                           Step size in variant counts.
+#' @param chr                [\code{number}]\cr
+#'                           Restrict LD pruning to specified chromosome.
 #' @param threshold          [\code{number}]\cr
 #'                           Pairwise \eqn{r^2} threshold.
 #' @param ...                [\code{character}]\cr
@@ -377,7 +379,7 @@ plink_merge <- function(first.prefix, second.prefix, merge.mode,
 #' @import checkmate
 #'
 plink_ld_pruning <- function(bfile, output.prefix, 
-                             window.size, step.size, threshold, ...,
+                             window.size, step.size, threshold, chr, ...,
                              bed.file = NULL, bim.file = NULL, fam.file = NULL,
                              exec = "plink",
                              num.threads,
@@ -404,6 +406,13 @@ plink_ld_pruning <- function(bfile, output.prefix,
   checkmate::assert_int(step.size, lower = 1, add = assertions)
   checkmate::assert_number(threshold, lower = 0, upper = 1, add = assertions)
   
+  if (!missing(chr)) {
+    checkmate::assert_int(chr, lower = 1, add = assertions)
+    chr <- sprintf("--chr %d", chr)
+  } else {
+    chr <- ""
+  }
+  
   assert_command(exec, add = assertions)
   
   if (missing(num.threads)) {  
@@ -427,7 +436,8 @@ plink_ld_pruning <- function(bfile, output.prefix,
              "--memory", memory,
              "--keep-allele-order",
              "--allow-extra-chr", "0",
-             "--indep-pairwise", sprintf("%dkb", window.size), sprintf("%dkb",step.size), threshold,
+             chr,
+             "--indep-pairwise", sprintf("%dkb", window.size), step.size, threshold,
              "--out", output.prefix, ...)
   )
   

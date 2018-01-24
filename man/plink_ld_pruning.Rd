@@ -4,9 +4,9 @@
 \alias{plink_ld_pruning}
 \title{LD pruning with PLINK}
 \usage{
-plink_ld_pruning(bfile, output.prefix, window.size, step.size, threshold, ...,
-  bed.file = NULL, bim.file = NULL, fam.file = NULL, exec = "plink",
-  num.threads, memory)
+plink_ld_pruning(bfile, output.prefix, window.size, step.size, threshold, chr,
+  ..., bed.file = NULL, bim.file = NULL, fam.file = NULL,
+  exec = "plink", num.threads, memory)
 }
 \arguments{
 \item{bfile}{[\code{string}]\cr
@@ -19,10 +19,13 @@ The basename of the new binary PLINK files.}
 Window size in kilobase.}
 
 \item{step.size}{[\code{int}]\cr
-Step size in kilobase.}
+Step size in variant counts.}
 
 \item{threshold}{[\code{number}]\cr
 Pairwise \eqn{r^2} threshold.}
+
+\item{chr}{[\code{number}]\cr
+Restrict LD pruning to specified chromosome.}
 
 \item{...}{[\code{character}]\cr
 Additional arguments passed to PLINK.}
