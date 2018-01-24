@@ -30,5 +30,6 @@ print_3ptable <- function(notes, ...){
                             print.results = FALSE)
   final_table <- sub('\\end{tabular}', paste0('\\end{tabular}', '\n', notes),
                      tmp_table, fixed=TRUE)
-  cat(final_table)
+  
+  invisible(final_table)
 }
