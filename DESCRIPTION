@@ -20,6 +20,7 @@ Imports: checkmate,
     BatchJobs,
     batchtools,
     xtable,
-    data.table
+    data.table,
+    ggplot2
 Suggests:
     testthat
