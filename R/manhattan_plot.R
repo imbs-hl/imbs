@@ -39,6 +39,12 @@ manhattan_plot <- function(data,
                                          pos = "BP",
                                          pval = "P")) {
   
+  # Define dummys
+  CHR <- NULL
+  GBP <- NULL
+  LOGP <- NULL
+  THINABLE <- NULL
+  
   checkmate::assertDataFrame(data, min.cols = 3)
   checkmate::assertFlag(thin)
   if(thin) {
