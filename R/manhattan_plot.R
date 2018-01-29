@@ -99,8 +99,8 @@ manhattan_plot <- function(data,
     manhattanData[, THINABLE := (get(pos) > (min(get(pos)) + thin.param$buffer)) &
                     (get(pos) < (max(get(pos)) - thin.param$buffer)) &
                     (LOGP < thin.param$logp.thin.thresh), by = get(chr)]
-    manhattanData <-manhattanData[c(sample(which(THINABLE), sum(THINABLE, na.rm = TRUE)*thin.param$logp.thin.rate),
-                                    which(!THINABLE))]
+    manhattanData <- manhattanData[c(sample(which(THINABLE), sum(THINABLE, na.rm = TRUE)*thin.param$logp.thin.rate),
+                                     which(!THINABLE))]
   }
   
   p <- ggplot2::ggplot(data = manhattanData, aes(x = GBP, y = -log10(get(pval)))) +
@@ -120,9 +120,9 @@ manhattan_plot <- function(data,
     threshold <- 1
   }
   
-  p <- p + ylim(c(0, max(c(manhattanData$LOGP,
+  p <- p + ylim(c(0, max(c(manhattanData[is.finite(LOGP), max(LOGP)],
                            bThresh,
-                           -log10(threshold)))))
+                           -log10(threshold))) + 1))
   
   return(p)
   
