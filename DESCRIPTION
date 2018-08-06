@@ -24,3 +24,4 @@ Imports: checkmate,
     ggplot2
 Suggests:
     testthat
+Remotes: imbs-hl/BatchJobs
