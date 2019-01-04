@@ -148,7 +148,7 @@ plink_subset <- function(bfile, output.prefix, remove, keep, exclude, extract, .
   
 }
 
-#' Convert VCF files to PLINK binary files
+#' Normalize and convert VCF files to PLINK binary files
 #'
 #' @param vcf.file           [\code{string}]\cr
 #'                           The VCF file path.
@@ -178,11 +178,11 @@ plink_subset <- function(bfile, output.prefix, remove, keep, exclude, extract, .
 #'
 #' @import checkmate
 #'
-plink_vcf_conversion <- function(vcf.file, ref.file, output.prefix, ..., 
-                             build = "b37",
-                             bcftools.exec = "bcftools", plink.exec = "plink",
-                             num.threads,
-                             memory) {
+plink_normalize_vcf_conversion <- function(vcf.file, ref.file, output.prefix, ..., 
+                                           build = "b37",
+                                           bcftools.exec = "bcftools", plink.exec = "plink",
+                                           num.threads,
+                                           memory) {
   
   assertions <- checkmate::makeAssertCollection()
   
@@ -217,6 +217,80 @@ plink_vcf_conversion <- function(vcf.file, ref.file, output.prefix, ...,
              bcftools.exec, "annotate", "-Ob", "-x", "ID", "-I", "+'%CHROM:%POS:%REF:%ALT'",
              "|",
              plink.exec, "--bcf", "/dev/stdin",
+             "--vcf-idspace-to", "_",
+             "--keep-allele-order",
+             "--allow-extra-chr", "0",
+             "--split-x", build, "no-fail",
+             "--threads", num.threads,
+             "--memory", memory,
+             "--make-bed",
+             "--out", output.prefix, ...)
+  )
+  
+}
+
+#' Convert VCF files to PLINK binary files
+#' 
+#' Be sure the VCF file is well prepared!
+#'
+#' @param vcf.file           [\code{string}]\cr
+#'                           The VCF file path.
+#' @param output.prefix      [\code{string}]\cr
+#'                           The basename of the new binary PLINK files.
+#' @param ...                [\code{character}]\cr
+#'                           Additional arguments passed to PLINK.
+#' @param build              [\code{string}]\cr
+#'                           Human genome build code to split the X chromosome into pseudo-autosomal region and pure X. Default is 'b37' (alias 'hg19').
+#' @param plink.exec         [\code{string}]\cr
+#'                           Path of PLINK executable.
+#' @param num.threads        [\code{int}]\cr
+#'                           Number of CPUs usable by PLINK.
+#'                           Default is determined by SLURM environment variables and at least 1.
+#' @param memory             [\code{int}]\cr
+#'                           Memory for PLINK in Mb.
+#'                           Default is determined by minimum of SLURM environment variables \code{SLURM_MEM_PER_CPU} and \code{num.threads * SLURM_MEM_PER_NODE} and at least 5000.
+#'
+#' @details Based on the best practices on \url{http://apol1.blogspot.de/2014/11/best-practice-for-converting-vcf-files.html}. The procedure will take the VCF file and convert it to PLINK format. Be sure the VCF file is well prepared! See PLINK manual \url{https://www.cog-genomics.org/plink/1.9/}.
+#'
+#' @return Captured system output as \code{character} vector.
+#' @export
+#'
+#' @import checkmate
+#' 
+#' @seealso plink_normalize_vcf_conversion
+#' @seealso vcf_normalization
+#'
+plink_vcf_conversion <- function(vcf.file, output.prefix, ..., 
+                                 build = "b37",
+                                 plink.exec = "plink",
+                                 num.threads,
+                                 memory) {
+  
+  assertions <- checkmate::makeAssertCollection()
+  
+  checkmate::assert_file(vcf.file, add = assertions)
+  checkmate::assert_directory(dirname(output.prefix), add = assertions)
+  checkmate::assertChoice(build, c("b36", "hg18", "b37", "hg19", "b38", "hg38"), add = assertions)
+  
+  assert_command(plink.exec, add = assertions)
+  
+  if (missing(num.threads)) {   
+    num.threads <- max(1, as.integer(Sys.getenv("SLURM_CPUS_PER_TASK")), na.rm = TRUE)  
+  } 
+  checkmate::assert_int(num.threads, lower = 1, add = assertions)
+  if (missing(memory)) {  
+    memory = max(5000,       
+                 min(as.integer(Sys.getenv("SLURM_MEM_PER_NODE")) - 1000,              
+                     num.threads * as.integer(Sys.getenv("SLURM_MEM_PER_CPU")) - 1000, na.rm = TRUE),                   na.rm = TRUE)  
+  } 
+  checkmate::assert_int(memory, lower = 1000, add = assertions)
+  
+  checkmate::reportAssertions(assertions)
+  
+  # Run PLINK
+  system_call(
+    bin = plink.exec,
+    args = c("--vcf", vcf.file,
              "--vcf-idspace-to", "_",
              "--keep-allele-order",
              "--allow-extra-chr", "0",
