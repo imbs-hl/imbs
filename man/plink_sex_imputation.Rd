@@ -4,8 +4,9 @@
 \alias{plink_sex_imputation}
 \title{Sex imputation with PLINK}
 \usage{
-plink_sex_imputation(bfile, output.prefix, f.values, ..., bed.file = NULL,
-  bim.file = NULL, fam.file = NULL, exec = "plink", num.threads, memory)
+plink_sex_imputation(bfile, output.prefix, f.values, ...,
+  bed.file = NULL, bim.file = NULL, fam.file = NULL,
+  exec = "plink", num.threads, memory)
 }
 \arguments{
 \item{bfile}{[\code{string}]\cr

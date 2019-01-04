@@ -6,10 +6,11 @@
 \usage{
 harmonize_genotypes(input, ref, output, input.type, ref.type, output.type,
   input.prob = 0.4, force.chr, call.rate.filter = 0, chr.filter,
-  hwe.filter = 1, maf.filter = 0, sample.filter.list, variant.filter.list,
-  mach.r2.filter = 0, variant.pos.filter.list, ambiguous.snp.filter = FALSE,
-  update.id = FALSE, min.ld = 0.3, min.variants = 3, variants = 100,
-  check.ld = FALSE, maf.align = 0, update.reference.allele = FALSE,
+  hwe.filter = 1, maf.filter = 0, sample.filter.list,
+  variant.filter.list, mach.r2.filter = 0, variant.pos.filter.list,
+  ambiguous.snp.filter = FALSE, update.id = FALSE, min.ld = 0.3,
+  min.variants = 3, variants = 100, check.ld = FALSE,
+  maf.align = 0, update.reference.allele = FALSE,
   exec = "GenotypeHarmonizer")
 }
 \arguments{

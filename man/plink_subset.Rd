@@ -5,8 +5,8 @@
 \title{Subset samples and variants using PLINK}
 \usage{
 plink_subset(bfile, output.prefix, remove, keep, exclude, extract, ...,
-  bed.file = NULL, bim.file = NULL, fam.file = NULL, exec = "plink",
-  num.threads, memory)
+  bed.file = NULL, bim.file = NULL, fam.file = NULL,
+  exec = "plink", num.threads, memory)
 }
 \arguments{
 \item{bfile}{[\code{string}]\cr

@@ -4,15 +4,12 @@
 \alias{plink_vcf_conversion}
 \title{Convert VCF files to PLINK binary files}
 \usage{
-plink_vcf_conversion(vcf.file, ref.file, output.prefix, ..., build = "b37",
-  bcftools.exec = "bcftools", plink.exec = "plink", num.threads, memory)
+plink_vcf_conversion(vcf.file, output.prefix, ..., build = "b37",
+  plink.exec = "plink", num.threads, memory)
 }
 \arguments{
 \item{vcf.file}{[\code{string}]\cr
 The VCF file path.}
-
-\item{ref.file}{[\code{string}]\cr
-A human reference genome \code{fasta} file to normalize indels against.}
 
 \item{output.prefix}{[\code{string}]\cr
 The basename of the new binary PLINK files.}
@@ -22,9 +19,6 @@ Additional arguments passed to PLINK.}
 
 \item{build}{[\code{string}]\cr
 Human genome build code to split the X chromosome into pseudo-autosomal region and pure X. Default is 'b37' (alias 'hg19').}
-
-\item{bcftools.exec}{[\code{string}]\cr
-Path of bcftools executable.}
 
 \item{plink.exec}{[\code{string}]\cr
 Path of PLINK executable.}
@@ -41,8 +35,13 @@ Default is determined by minimum of SLURM environment variables \code{SLURM_MEM_
 Captured system output as \code{character} vector.
 }
 \description{
-Convert VCF files to PLINK binary files
+Be sure the VCF file is well prepared!
 }
 \details{
-Based on the best practices on \url{http://apol1.blogspot.de/2014/11/best-practice-for-converting-vcf-files.html}. The procedure will take the VCF file, strip the variant IDs, split multi-allelic sites into bi-allelic sites, assign names to make sure indels will not become ambiguous, and finally convert to PLINK format. See PLINK manual \url{https://www.cog-genomics.org/plink/1.9/}.
+Based on the best practices on \url{http://apol1.blogspot.de/2014/11/best-practice-for-converting-vcf-files.html}. The procedure will take the VCF file and convert it to PLINK format. Be sure the VCF file is well prepared! See PLINK manual \url{https://www.cog-genomics.org/plink/1.9/}.
+}
+\seealso{
+plink_normalize_vcf_conversion
+
+vcf_normalization
 }
