@@ -639,11 +639,11 @@ plink_sex_imputation <- function(bfile, output.prefix,
 #' @import checkmate tools
 #'
 plink_merge_list <- function(bfile, output.prefix, 
-                                 merge.list, merge.mode, ...,
-                                 bed.file = NULL, bim.file = NULL, fam.file = NULL,
-                                 exec = "plink",
-                                 num.threads,
-                                 memory) {
+                             merge.list, merge.mode, ...,
+                             bed.file = NULL, bim.file = NULL, fam.file = NULL,
+                             exec = "plink",
+                             num.threads,
+                             memory) {
   
   assertions <- checkmate::makeAssertCollection()
   
@@ -665,7 +665,7 @@ plink_merge_list <- function(bfile, output.prefix,
   checkmate::assert_file(merge.list, add = assertions)
   
   if (!missing(merge.mode)) {
-  checkmate::assert_int(merge.mode, lower = 1, upper = 7, add = assertions)
+    checkmate::assert_int(merge.mode, lower = 1, upper = 7, add = assertions)
     merge.mode <- sprintf("--merge-mode %d", merge.mode)
   } else {
     merge.mode <- ""
@@ -700,6 +700,212 @@ plink_merge_list <- function(bfile, output.prefix,
              "--allow-extra-chr", "0",
              "--make-bed",
              "--out", output.prefix, ...)
+  )
+  
+}
+
+#' Remove duplicated variants
+#' 
+#' Uses \code{cut}, \code{sort}, \code{uniq} and \code{awk} to find duplicated markers excludes them using PLINK.
+#'
+#' @param bfile              [\code{string}]\cr
+#'                           The basename of the binary PLINK files.
+#' @param output.prefix      [\code{string}]\cr
+#'                           The basename of the new binary PLINK files.
+#' @param ...                [\code{character}]\cr
+#'                           Additional arguments passed to PLINK.
+#' @param bed.file           [\code{string}]\cr
+#'                           Alternative to \code{bfile} interface. Specify \code{bed}, \code{bim} and \code{fam} files individually.
+#' @param bim.file           [\code{string}]\cr
+#'                           Alternative to \code{bfile} interface. Specify \code{bed}, \code{bim} and \code{fam} files individually.
+#' @param fam.file           [\code{string}]\cr
+#'                           Alternative to \code{bfile} interface. Specify \code{bed}, \code{bim} and \code{fam} files individually.
+#' @param exec               [\code{string}]\cr
+#'                           Path of PLINK executable.
+#' @param num.threads        [\code{int}]\cr
+#'                           Number of CPUs usable by PLINK.
+#'                           Default is determined by SLURM environment variables and at least 1.
+#' @param memory             [\code{int}]\cr
+#'                           Memory for PLINK in Mb.
+#'                           Default is determined by minimum of SLURM environment variables \code{SLURM_MEM_PER_NODE} and \code{num.threads * SLURM_MEM_PER_CPU} and at least 5000.
+#'
+#' @details See PLINK manual \url{https://www.cog-genomics.org/plink/1.9/}.
+#'
+#' @return Captured system output as \code{character} vector.
+#' @export
+#'
+#' @import checkmate tools
+#'
+plink_dedup <- function(bfile, output.prefix, 
+                        ...,
+                        bed.file = NULL, bim.file = NULL, fam.file = NULL,
+                        exec = "plink",
+                        num.threads,
+                        memory) {
+  
+  assertions <- checkmate::makeAssertCollection()
+  
+  if (!missing(bfile)) {
+    checkmate::assert_file(sprintf("%s.bed", bfile), add = assertions)
+    checkmate::assert_file(sprintf("%s.bim", bfile), add = assertions)
+    checkmate::assert_file(sprintf("%s.fam", bfile), add = assertions)
+    input <- sprintf("--bfile %s", bfile)
+    input_prefix <- bfile
+    bim_file <- sprintf("%s.bim", bfile)
+  } else {
+    checkmate::assert_file(bed.file, add = assertions)
+    checkmate::assert_file(bim.file, add = assertions)
+    checkmate::assert_file(fam.file, add = assertions)
+    input <- sprintf("--bed %s --bim %s --fam %s", bed.file, bim.file, fam.file)
+    input_prefix <- sub("\\.bim", "", bed.file)
+    bim_file <- bim.file
+  }
+  
+  checkmate::assert_string(output.prefix, add = assertions)
+  checkmate::assert_directory(dirname(output.prefix), add = assertions)
+  
+  assert_command(exec, add = assertions)
+  
+  if (missing(num.threads)) {
+    num.threads <- max(1, as.integer(Sys.getenv("SLURM_CPUS_PER_TASK")),
+                       na.rm = TRUE)
+  }
+  checkmate::assert_int(num.threads, lower = 1, add = assertions)
+  
+  if (missing(memory)) {
+    memory = max(5000, 
+                 min(as.integer(Sys.getenv("SLURM_MEM_PER_NODE")) - 1000, 
+                     num.threads * as.integer(Sys.getenv("SLURM_MEM_PER_CPU")) - 1000, na.rm = TRUE), 
+                 na.rm = TRUE)
+  }
+  checkmate::assert_int(memory, lower = 1000, add = assertions)
+  
+  checkmate::reportAssertions(assertions)
+  
+  dups_file <- sprintf("%s.dups", input_prefix)
+  
+  # Find duplicated markers
+  system_call(
+    bin = "cut",
+    args = c("-f2",
+             bim_file,
+             "|", "sort", 
+             "|", "uniq -c", 
+             "|", "awk", "'$1>=2 {print $2}'", 
+             ">", dups_file)
+  )
+  
+  # Remove duplicated markers
+  system_call(
+    bin = exec,
+    args = c(input, ...,
+             "--keep-allele-order",
+             "--exclude", dups_file,
+             "--make-bed",
+             "--out", output.prefix)
+  )
+  
+}
+
+#' Remove very long INDELS
+#' 
+#' Uses \code{cut}, \code{sort}, \code{uniq} and \code{awk} to find very long INDELS (longer than 150 bp) causing PLINK to be very memory hungry during analyses and excludes them using PLINK.
+#'
+#' @param bfile              [\code{string}]\cr
+#'                           The basename of the binary PLINK files.
+#' @param output.prefix      [\code{string}]\cr
+#'                           The basename of the new binary PLINK files.
+#' @param ...                [\code{character}]\cr
+#'                           Additional arguments passed to PLINK.
+#' @param bed.file           [\code{string}]\cr
+#'                           Alternative to \code{bfile} interface. Specify \code{bed}, \code{bim} and \code{fam} files individually.
+#' @param bim.file           [\code{string}]\cr
+#'                           Alternative to \code{bfile} interface. Specify \code{bed}, \code{bim} and \code{fam} files individually.
+#' @param fam.file           [\code{string}]\cr
+#'                           Alternative to \code{bfile} interface. Specify \code{bed}, \code{bim} and \code{fam} files individually.
+#' @param exec               [\code{string}]\cr
+#'                           Path of PLINK executable.
+#' @param num.threads        [\code{int}]\cr
+#'                           Number of CPUs usable by PLINK.
+#'                           Default is determined by SLURM environment variables and at least 1.
+#' @param memory             [\code{int}]\cr
+#'                           Memory for PLINK in Mb.
+#'                           Default is determined by minimum of SLURM environment variables \code{SLURM_MEM_PER_NODE} and \code{num.threads * SLURM_MEM_PER_CPU} and at least 5000.
+#'
+#' @details See PLINK manual \url{https://www.cog-genomics.org/plink/1.9/}.
+#'
+#' @return Captured system output as \code{character} vector.
+#' @export
+#'
+#' @import checkmate tools
+#'
+plink_rm_long_indels <- function(bfile, output.prefix, 
+                                 ...,
+                                 bed.file = NULL, bim.file = NULL, fam.file = NULL,
+                                 exec = "plink",
+                                 num.threads,
+                                 memory) {
+  
+  assertions <- checkmate::makeAssertCollection()
+  
+  if (!missing(bfile)) {
+    checkmate::assert_file(sprintf("%s.bed", bfile), add = assertions)
+    checkmate::assert_file(sprintf("%s.bim", bfile), add = assertions)
+    checkmate::assert_file(sprintf("%s.fam", bfile), add = assertions)
+    input <- sprintf("--bfile %s", bfile)
+    input_prefix <- bfile
+    bim_file <- sprintf("%s.bim", bfile)
+  } else {
+    checkmate::assert_file(bed.file, add = assertions)
+    checkmate::assert_file(bim.file, add = assertions)
+    checkmate::assert_file(fam.file, add = assertions)
+    input <- sprintf("--bed %s --bim %s --fam %s", bed.file, bim.file, fam.file)
+    input_prefix <- sub("\\.bim", "", bed.file)
+    bim_file <- bim.file
+  }
+  
+  checkmate::assert_string(output.prefix, add = assertions)
+  checkmate::assert_directory(dirname(output.prefix), add = assertions)
+  
+  assert_command(exec, add = assertions)
+  
+  if (missing(num.threads)) {
+    num.threads <- max(1, as.integer(Sys.getenv("SLURM_CPUS_PER_TASK")),
+                       na.rm = TRUE)
+  }
+  checkmate::assert_int(num.threads, lower = 1, add = assertions)
+  
+  if (missing(memory)) {
+    memory = max(5000, 
+                 min(as.integer(Sys.getenv("SLURM_MEM_PER_NODE")) - 1000, 
+                     num.threads * as.integer(Sys.getenv("SLURM_MEM_PER_CPU")) - 1000, na.rm = TRUE), 
+                 na.rm = TRUE)
+  }
+  checkmate::assert_int(memory, lower = 1000, add = assertions)
+  
+  checkmate::reportAssertions(assertions)
+  
+  long_indels_file <- sprintf("%s.longindels", input_prefix)
+  
+  # Find very long indels
+  system_call(
+    bin = "cut",
+    args = c("-f2",
+             bim_file,
+             "|", "awk", "'length($1)>=150'", 
+             "|", "sort", 
+             "|", "uniq", 
+             ">", long_indels_file)
+  )
+  
+  # Remove very long indels
+  system_call(
+    bin = exec,
+    args = c(input, ...,
+             "--keep-allele-order",
+             "--exclude", long_indels_file,
+             "--make-bed",
+             "--out", output.prefix)
   )
   
 }
