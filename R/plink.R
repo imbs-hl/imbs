@@ -809,12 +809,14 @@ plink_dedup <- function(bfile, output.prefix,
 
 #' Remove very long INDELS
 #' 
-#' Uses \code{cut}, \code{sort}, \code{uniq} and \code{awk} to find very long INDELS (longer than 150 bp) causing PLINK to be very memory hungry during analyses and excludes them using PLINK.
+#' Uses \code{cut}, \code{sort}, \code{uniq} and \code{awk} to find very long INDELS causing PLINK to be very memory hungry during analyses and excludes them using PLINK.
 #'
 #' @param bfile              [\code{string}]\cr
 #'                           The basename of the binary PLINK files.
 #' @param output.prefix      [\code{string}]\cr
 #'                           The basename of the new binary PLINK files.
+#' @param max_length         [\code{integer}]\cr
+#'                           The maximum length of any allele.
 #' @param ...                [\code{character}]\cr
 #'                           Additional arguments passed to PLINK.
 #' @param bed.file           [\code{string}]\cr
@@ -840,6 +842,7 @@ plink_dedup <- function(bfile, output.prefix,
 #' @import checkmate tools
 #'
 plink_rm_long_indels <- function(bfile, output.prefix, 
+                                 max_length,
                                  ...,
                                  bed.file = NULL, bim.file = NULL, fam.file = NULL,
                                  exec = "plink",
@@ -867,6 +870,8 @@ plink_rm_long_indels <- function(bfile, output.prefix,
   checkmate::assert_string(output.prefix, add = assertions)
   checkmate::assert_directory(dirname(output.prefix), add = assertions)
   
+  checkmate::assert_int(max_length, add = assertions)
+  
   assert_command(exec, add = assertions)
   
   if (missing(num.threads)) {
@@ -889,10 +894,9 @@ plink_rm_long_indels <- function(bfile, output.prefix,
   
   # Find very long indels
   system_call(
-    bin = "cut",
-    args = c("-f2",
+    bin = "awk",
+    args = c(sprintf("'{if (length($5) >= %d || length($6) >= %d) print $2}'", max_length, max_length),
              bim_file,
-             "|", "awk", "'length($1)>=150'", 
              "|", "sort", 
              "|", "uniq", 
              ">", long_indels_file)
