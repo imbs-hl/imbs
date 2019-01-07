@@ -421,7 +421,9 @@ plink_merge <- function(first.prefix, second.prefix, merge.mode,
 #' @param output.prefix      [\code{string}]\cr
 #'                           The basename of the new binary PLINK files.
 #' @param window.size        [\code{int}]\cr
-#'                           Window size in kilobase.
+#'                           Window size.
+#' @param kb.window          [\code{boolean}]\cr
+#'                           Is window size in kb units?
 #' @param step.size          [\code{int}]\cr
 #'                           Step size in variant counts.
 #' @param chr                [\code{number}]\cr
@@ -453,7 +455,7 @@ plink_merge <- function(first.prefix, second.prefix, merge.mode,
 #' @import checkmate
 #'
 plink_ld_pruning <- function(bfile, output.prefix, 
-                             window.size, step.size, threshold, chr, ...,
+                             window.size, kb.window = FALSE, step.size, threshold, chr, ...,
                              bed.file = NULL, bim.file = NULL, fam.file = NULL,
                              exec = "plink2",
                              num.threads,
@@ -477,7 +479,17 @@ plink_ld_pruning <- function(bfile, output.prefix,
   checkmate::assert_directory(dirname(output.prefix), add = assertions)
   
   checkmate::assert_int(window.size, lower = 2, add = assertions)
-  checkmate::assert_int(step.size, lower = 1, add = assertions)
+  checkmate::assert_logical(kb.window, add = assertions)
+  if (kb.window) {
+    window_size <- sprintf("%dkb", window.size)
+    message("When window size is in kb units, step size is set to 1.")
+    step_size <- 1
+  } else {
+    window.size <- window.size
+    step_size <- step.size
+  }
+  checkmate::assert_int(step_size, lower = 1, add = assertions)
+  
   checkmate::assert_number(threshold, lower = 0, upper = 1, add = assertions)
   
   if (!missing(chr)) {
@@ -511,7 +523,7 @@ plink_ld_pruning <- function(bfile, output.prefix,
              "--keep-allele-order",
              "--allow-extra-chr", "0",
              chr,
-             "--indep-pairwise", sprintf("%dkb", window.size), step.size, threshold,
+             "--indep-pairwise", window_size, step_size, threshold,
              "--out", output.prefix, ...)
   )
   
