@@ -913,3 +913,171 @@ plink_rm_long_indels <- function(bfile, output.prefix,
   )
   
 }
+
+#' Remove regions of high LD
+#' 
+#' There are regions of long-range, high linkage diequilibrium in the human genome. 
+#' These regions should be excluded when performing certain analyses such as principal component analysis on genotype data.
+#'
+#' @param bfile              [\code{string}]\cr
+#'                           The basename of the binary PLINK files.
+#' @param output.prefix      [\code{string}]\cr
+#'                           The basename of the new binary PLINK files.
+#' @param build              [\code{integer}]\cr
+#'                           The genome build version of PLINK file. Default b37.
+#' @param ...                [\code{character}]\cr
+#'                           Additional arguments passed to PLINK.
+#' @param bed.file           [\code{string}]\cr
+#'                           Alternative to \code{bfile} interface. Specify \code{bed}, \code{bim} and \code{fam} files individually.
+#' @param bim.file           [\code{string}]\cr
+#'                           Alternative to \code{bfile} interface. Specify \code{bed}, \code{bim} and \code{fam} files individually.
+#' @param fam.file           [\code{string}]\cr
+#'                           Alternative to \code{bfile} interface. Specify \code{bed}, \code{bim} and \code{fam} files individually.
+#' @param exec               [\code{string}]\cr
+#'                           Path of PLINK executable.
+#' @param num.threads        [\code{int}]\cr
+#'                           Number of CPUs usable by PLINK.
+#'                           Default is determined by SLURM environment variables and at least 1.
+#' @param memory             [\code{int}]\cr
+#'                           Memory for PLINK in Mb.
+#'                           Default is determined by minimum of SLURM environment variables \code{SLURM_MEM_PER_NODE} and \code{num.threads * SLURM_MEM_PER_CPU} and at least 5000.
+#'
+#' @details See \url{https://genome.sph.umich.edu/wiki/Regions_of_high_linkage_disequilibrium_(LD)}.
+#'
+#' @return Captured system output as \code{character} vector.
+#' @export
+#'
+#' @import checkmate tools
+#'
+plink_rm_high_ld <- function(bfile, output.prefix, 
+                             build = "b37",
+                             ...,
+                             bed.file = NULL, bim.file = NULL, fam.file = NULL,
+                             exec = "plink2",
+                             num.threads,
+                             memory) {
+  
+  assertions <- checkmate::makeAssertCollection()
+  
+  if (!missing(bfile)) {
+    checkmate::assert_file(sprintf("%s.bed", bfile), add = assertions)
+    checkmate::assert_file(sprintf("%s.bim", bfile), add = assertions)
+    checkmate::assert_file(sprintf("%s.fam", bfile), add = assertions)
+    input <- sprintf("--bfile %s", bfile)
+    input_prefix <- bfile
+    bim_file <- sprintf("%s.bim", bfile)
+  } else {
+    checkmate::assert_file(bed.file, add = assertions)
+    checkmate::assert_file(bim.file, add = assertions)
+    checkmate::assert_file(fam.file, add = assertions)
+    input <- sprintf("--bed %s --bim %s --fam %s", bed.file, bim.file, fam.file)
+    input_prefix <- sub("\\.bim", "", bed.file)
+    bim_file <- bim.file
+  }
+  
+  checkmate::assert_string(output.prefix, add = assertions)
+  checkmate::assert_directory(dirname(output.prefix), add = assertions)
+  
+  checkmate::assert_choice(build, choices = c("b37", "b36"), add = assertions)
+  
+  assert_command(exec, add = assertions)
+  
+  if (missing(num.threads)) {
+    num.threads <- max(1, as.integer(Sys.getenv("SLURM_CPUS_PER_TASK")),
+                       na.rm = TRUE)
+  }
+  checkmate::assert_int(num.threads, lower = 1, add = assertions)
+  
+  if (missing(memory)) {
+    memory = max(5000, 
+                 min(as.integer(Sys.getenv("SLURM_MEM_PER_NODE")) - 1000, 
+                     num.threads * as.integer(Sys.getenv("SLURM_MEM_PER_CPU")) - 1000, na.rm = TRUE), 
+                 na.rm = TRUE)
+  }
+  checkmate::assert_int(memory, lower = 1000, add = assertions)
+  
+  checkmate::reportAssertions(assertions)
+  
+  if (build == "b37") {
+    high_ld_regions <- fread(
+      "Chr	Start	Stop
+      1	48000000	52000000
+      2	86000000	100500000
+      2	134500000	138000000
+      2	183000000	190000000
+      3	47500000	50000000
+      3	83500000	87000000
+      3	89000000	97500000
+      5	44500000	50500000
+      5	98000000	100500000
+      5	129000000	132000000
+      5	135500000	138500000
+      6	25000000	35000000
+      6	57000000	64000000
+      6	140000000	142500000
+      7	55000000	66000000
+      8	7000000	13000000
+      8	43000000	50000000
+      8	112000000	115000000
+      10	37000000	43000000
+      11	46000000	57000000
+      11	87500000	90500000
+      12	33000000	40000000
+      12	109500000	112000000
+      20	32000000	34500000")
+  } else if (build == "b36") {
+    high_ld_regions <- fread(
+      "Chr	Start	Stop
+      1	48060567	52060567
+      2	85941853	100407914
+      2	134382738	137882738
+      2	182882739	189882739
+      3	47500000	50000000
+      3	83500000	87000000
+      3	89000000	97500000
+      5	44500000	50500000
+      5	98000000	100500000
+      5	129000000	132000000
+      5	135500000	138500000
+      6	25500000	33500000
+      6	57000000	64000000
+      6	140000000	142500000
+      7	55193285	66193285
+      8	8000000	12000000
+      8	43000000	50000000
+      8	112000000	115000000
+      10	37000000	43000000
+      11	46000000	57000000
+      11	87500000	90500000
+      12	33000000	40000000
+      12	109521663	112021663
+      20	32000000	34500000
+      23	14150264	16650264
+      23	25650264	28650264
+      23	33150264	35650264
+      23	55133704	60500000
+      23	65133704	67633704
+      23	71633704	77580511
+      23	80080511	86080511
+      23	100580511	103080511
+      23	125602146	128102146
+      23	129102146	131602146")
+  }
+  high_ld_regions[, SetID := sprintf("HiLD%d", .I)]
+  
+  high_ld_regions_file <- tempfile()
+  
+  fwrite(high_ld_regions, high_ld_regions_file)
+  
+  # Remove very long indels
+  system_call(
+    bin = exec,
+    args = c(input, ...,
+             "--keep-allele-order",
+             "--exclude", "range", high_ld_regions_file,
+             "--make-bed",
+             "--out", output.prefix)
+  )
+  
+}
+
