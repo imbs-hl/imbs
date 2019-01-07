@@ -1067,7 +1067,7 @@ plink_rm_high_ld <- function(bfile, output.prefix,
   
   high_ld_regions_file <- tempfile()
   
-  fwrite(high_ld_regions, high_ld_regions_file)
+  fwrite(high_ld_regions, high_ld_regions_file, sep = "\t", row.names = FALSE, col.names = FALSE)
   
   # Remove very long indels
   system_call(
