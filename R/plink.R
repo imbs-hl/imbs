@@ -485,7 +485,7 @@ plink_ld_pruning <- function(bfile, output.prefix,
     message("When window size is in kb units, step size is set to 1.")
     step_size <- 1
   } else {
-    window.size <- window.size
+    window_size <- window.size
     step_size <- step.size
   }
   checkmate::assert_int(step_size, lower = 1, add = assertions)
