@@ -7,7 +7,7 @@
 plink_merge(first.prefix, second.prefix, merge.mode, output.prefix, ...,
   first.bed.file = NULL, first.bim.file = NULL,
   first.fam.file = NULL, second.bed.file = NULL,
-  second.bim.file = NULL, second.fam.file = NULL, exec = "plink",
+  second.bim.file = NULL, second.fam.file = NULL, exec = "plink2",
   num.threads, memory)
 }
 \arguments{

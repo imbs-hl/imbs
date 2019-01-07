@@ -6,7 +6,7 @@
 \usage{
 plink_ld_pruning(bfile, output.prefix, window.size, step.size, threshold,
   chr, ..., bed.file = NULL, bim.file = NULL, fam.file = NULL,
-  exec = "plink", num.threads, memory)
+  exec = "plink2", num.threads, memory)
 }
 \arguments{
 \item{bfile}{[\code{string}]\cr

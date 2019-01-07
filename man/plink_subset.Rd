@@ -6,7 +6,7 @@
 \usage{
 plink_subset(bfile, output.prefix, remove, keep, exclude, extract, ...,
   bed.file = NULL, bim.file = NULL, fam.file = NULL,
-  exec = "plink", num.threads, memory)
+  exec = "plink2", num.threads, memory)
 }
 \arguments{
 \item{bfile}{[\code{string}]\cr

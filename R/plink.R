@@ -68,7 +68,7 @@ write_plink_ids <- function(ids, file, update, sample = TRUE) {
 #'
 plink_subset <- function(bfile, output.prefix, remove, keep, exclude, extract, ...,
                          bed.file = NULL, bim.file = NULL, fam.file = NULL,
-                         exec = "plink",
+                         exec = "plink2",
                          num.threads,
                          memory) {
   
@@ -180,7 +180,7 @@ plink_subset <- function(bfile, output.prefix, remove, keep, exclude, extract, .
 #'
 plink_normalize_vcf_conversion <- function(vcf.file, ref.file, output.prefix, ..., 
                                            build = "b37",
-                                           bcftools.exec = "bcftools", plink.exec = "plink",
+                                           bcftools.exec = "bcftools", plink.exec = "plink2",
                                            num.threads,
                                            memory) {
   
@@ -262,7 +262,7 @@ plink_normalize_vcf_conversion <- function(vcf.file, ref.file, output.prefix, ..
 #'
 plink_vcf_conversion <- function(vcf.file, output.prefix, ..., 
                                  build = "b37",
-                                 plink.exec = "plink",
+                                 plink.exec = "plink2",
                                  num.threads,
                                  memory) {
   
@@ -348,7 +348,7 @@ plink_merge <- function(first.prefix, second.prefix, merge.mode,
                         ...,
                         first.bed.file = NULL, first.bim.file = NULL, first.fam.file = NULL,
                         second.bed.file = NULL, second.bim.file = NULL, second.fam.file = NULL,
-                        exec = "plink",
+                        exec = "plink2",
                         num.threads,
                         memory) {
   
@@ -455,7 +455,7 @@ plink_merge <- function(first.prefix, second.prefix, merge.mode,
 plink_ld_pruning <- function(bfile, output.prefix, 
                              window.size, step.size, threshold, chr, ...,
                              bed.file = NULL, bim.file = NULL, fam.file = NULL,
-                             exec = "plink",
+                             exec = "plink2",
                              num.threads,
                              memory) {
   
@@ -552,7 +552,7 @@ plink_ld_pruning <- function(bfile, output.prefix,
 plink_sex_imputation <- function(bfile, output.prefix, 
                                  f.values, ...,
                                  bed.file = NULL, bim.file = NULL, fam.file = NULL,
-                                 exec = "plink",
+                                 exec = "plink2",
                                  num.threads,
                                  memory) {
   
@@ -641,7 +641,7 @@ plink_sex_imputation <- function(bfile, output.prefix,
 plink_merge_list <- function(bfile, output.prefix, 
                              merge.list, merge.mode, ...,
                              bed.file = NULL, bim.file = NULL, fam.file = NULL,
-                             exec = "plink",
+                             exec = "plink2",
                              num.threads,
                              memory) {
   
@@ -739,7 +739,7 @@ plink_merge_list <- function(bfile, output.prefix,
 plink_dedup <- function(bfile, output.prefix, 
                         ...,
                         bed.file = NULL, bim.file = NULL, fam.file = NULL,
-                        exec = "plink",
+                        exec = "plink2",
                         num.threads,
                         memory) {
   
@@ -845,7 +845,7 @@ plink_rm_long_indels <- function(bfile, output.prefix,
                                  max_length,
                                  ...,
                                  bed.file = NULL, bim.file = NULL, fam.file = NULL,
-                                 exec = "plink",
+                                 exec = "plink2",
                                  num.threads,
                                  memory) {
   

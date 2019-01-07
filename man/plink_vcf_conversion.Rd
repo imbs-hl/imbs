@@ -5,7 +5,7 @@
 \title{Convert VCF files to PLINK binary files}
 \usage{
 plink_vcf_conversion(vcf.file, output.prefix, ..., build = "b37",
-  plink.exec = "plink", num.threads, memory)
+  plink.exec = "plink2", num.threads, memory)
 }
 \arguments{
 \item{vcf.file}{[\code{string}]\cr

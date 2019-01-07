@@ -6,7 +6,7 @@
 \usage{
 plink_rm_long_indels(bfile, output.prefix, max_length, ...,
   bed.file = NULL, bim.file = NULL, fam.file = NULL,
-  exec = "plink", num.threads, memory)
+  exec = "plink2", num.threads, memory)
 }
 \arguments{
 \item{bfile}{[\code{string}]\cr

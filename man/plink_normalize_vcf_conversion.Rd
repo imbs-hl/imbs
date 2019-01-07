@@ -5,7 +5,7 @@
 \title{Normalize and convert VCF files to PLINK binary files}
 \usage{
 plink_normalize_vcf_conversion(vcf.file, ref.file, output.prefix, ...,
-  build = "b37", bcftools.exec = "bcftools", plink.exec = "plink",
+  build = "b37", bcftools.exec = "bcftools", plink.exec = "plink2",
   num.threads, memory)
 }
 \arguments{

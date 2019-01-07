@@ -5,7 +5,7 @@
 \title{Remove duplicated variants}
 \usage{
 plink_dedup(bfile, output.prefix, ..., bed.file = NULL,
-  bim.file = NULL, fam.file = NULL, exec = "plink", num.threads,
+  bim.file = NULL, fam.file = NULL, exec = "plink2", num.threads,
   memory)
 }
 \arguments{
