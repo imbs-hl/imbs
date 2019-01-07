@@ -895,7 +895,7 @@ plink_rm_long_indels <- function(bfile, output.prefix,
   # Find very long indels
   system_call(
     bin = "awk",
-    args = c(sprintf("'{if (length($5) >= %d || length($6) >= %d) print $2}'", max_length, max_length),
+    args = c(sprintf("'{if (length($5) > %d || length($6) > %d) print $2}'", max_length, max_length),
              bim_file,
              "|", "sort", 
              "|", "uniq", 
