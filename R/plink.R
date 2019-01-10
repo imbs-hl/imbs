@@ -1175,7 +1175,7 @@ plink_marker_qc <- function(bfile, output.prefix,
   }
   if (!missing(hwe.pval)) {
     checkmate::assert_number(hwe.pval, lower = 0, upper = 1, finite = TRUE, null.ok = FALSE, add = assertions)
-    hwe_pval <- sprintf("--max-maf %f", hwe.pval)
+    hwe_pval <- sprintf("--hwe %g", hwe.pval)
   } else {
     hwe_pval <- NULL
   }
