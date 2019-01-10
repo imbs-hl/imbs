@@ -48,11 +48,11 @@ Memory for PLINK in Mb.
 Default is determined by minimum of SLURM environment variables \code{SLURM_MEM_PER_CPU} and \code{num.threads * SLURM_MEM_PER_NODE} and at least 5000.}
 }
 \value{
-Captured system output as \code{character} vector.
+Captured system outputs as \code{list} of \code{character} vectors.
 }
 \description{
 Quality control on sample level with PLINK
 }
 \details{
-Heterozygosity estimation is not LD-sensitive, thus LD pruning is performend first using \code{\link{plink_ld_pruning}}. See PLINK manual \url{https://www.cog-genomics.org/plink/1.9/}.
+Heterozygosity estimation is not LD-sensitive, thus LD pruning is performend first using \code{\link{plink_ld_pruning}}. Heterozygosity estimate is based on SNPs only. See PLINK manual \url{https://www.cog-genomics.org/plink/1.9/}.
 }

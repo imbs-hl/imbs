@@ -1243,7 +1243,7 @@ plink_marker_qc <- function(bfile, output.prefix,
 #'                           Memory for PLINK in Mb.
 #'                           Default is determined by minimum of SLURM environment variables \code{SLURM_MEM_PER_CPU} and \code{num.threads * SLURM_MEM_PER_NODE} and at least 5000.
 #'
-#' @details Heterozygosity estimation is not LD-sensitive, thus LD pruning is performend first using \code{\link{plink_ld_pruning}}. See PLINK manual \url{https://www.cog-genomics.org/plink/1.9/}.
+#' @details Heterozygosity estimation is not LD-sensitive, thus LD pruning is performend first using \code{\link{plink_ld_pruning}}. Heterozygosity estimate is based on SNPs only. See PLINK manual \url{https://www.cog-genomics.org/plink/1.9/}.
 #'
 #' @return Captured system outputs as \code{list} of \code{character} vectors.
 #' @export
@@ -1322,6 +1322,7 @@ plink_sample_qc <- function(bfile, output.prefix,
              sprintf("--extract %s.prune.in", output.prefix),
              "--keep-allele-order",
              "--allow-extra-chr",
+             "--snps-only just-acgt",
              "--het",
              "--out", output.prefix, ...)
   )

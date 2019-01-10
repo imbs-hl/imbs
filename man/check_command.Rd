@@ -11,13 +11,13 @@
 \usage{
 check_command(x)
 
-assert_command(x, .var.name = vname(x), add = NULL)
+assert_command(x, .var.name = checkmate::vname(x), add = NULL)
 
 test_command(x)
 
 checkCommand(x)
 
-assertCommand(x, .var.name = vname(x), add = NULL)
+assertCommand(x, .var.name = checkmate::vname(x), add = NULL)
 
 testCommand(x)
 }
