@@ -1211,9 +1211,9 @@ plink_marker_qc <- function(bfile, output.prefix,
              "--out", output.prefix, ...)
   )
   
-  num_geno_rm <- as.integer(gsub("^(\\d+) variants? removed due to missing genotype data.*", "\\1", grep("^\\d+ variants? removed due to missing genotype data.*", log, value = TRUE)))
-  num_hwe_rm <- as.integer(gsub("^--hwe: (\\d+) variants?.*", "\\1", grep("^--hwe: \\d", log, value = TRUE)))
-  num_maf_rm <- as.integer(gsub("^(\\d+) variants? removed due to minor allele threshold.*", "\\1", grep("^\\d+ variants? removed due to minor allele threshold.*", log, value = TRUE)))
+  num_geno_rm <- max(0, as.integer(gsub("^(\\d+) variants? removed due to missing genotype data.*", "\\1", grep("^\\d+ variants? removed due to missing genotype data.*", log, value = TRUE))))
+  num_hwe_rm <- max(0, as.integer(gsub("^--hwe: (\\d+) variants?.*", "\\1", grep("^--hwe: \\d", log, value = TRUE))))
+  num_maf_rm <- max(0, as.integer(gsub("^(\\d+) variants? removed due to minor allele threshold.*", "\\1", grep("^\\d+ variants? removed due to minor allele threshold.*", log, value = TRUE))))
   
   return(
     list(
@@ -1299,8 +1299,8 @@ plink_sample_qc <- function(bfile, output.prefix,
     checkmate::assert_number(het.sigma, lower = 0, finite = TRUE, null.ok = FALSE, add = assertions)
   }
   
-  checkmate::assert_list(ld.pruning.params, len = 4, names = "unique", any.missing = FALSE, all.missing = FALSE, null.ok = FALSE, add = assertions)
-  checkmate::assert_subset(names(ld.pruning.params), c("window.size", "kb.window", "step.size", "threshold"), add = assertions)
+  checkmate::assert_list(ld.pruning.params, min.len = 3, names = "unique", any.missing = FALSE, all.missing = FALSE, null.ok = FALSE, add = assertions)
+  checkmate::assert_subset(c("window.size", "step.size", "threshold"), names(ld.pruning.params), add = assertions)
   
   assert_command(exec, add = assertions)
   
@@ -1369,7 +1369,7 @@ plink_sample_qc <- function(bfile, output.prefix,
              "--out", output.prefix, ...)
   )
   
-  num_mind_rm <- as.integer(gsub("^(\\d+) people removed due to missing genotype data.*", "\\1", grep("^\\d+ people removed due to missing genotype data.*", qc_log, value = TRUE)))
+  num_mind_rm <- max(0, as.integer(gsub("^(\\d+) people removed due to missing genotype data.*", "\\1", grep("^\\d+ people removed due to missing genotype data.*", qc_log, value = TRUE))))
   num_het_rm <- het[HET_RATE < MEAN_HET_RATE - het.sigma*SD_HET_RATE | HET_RATE > MEAN_HET_RATE + het.sigma*SD_HET_RATE, .N]
   
   return(
