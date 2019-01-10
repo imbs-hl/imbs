@@ -1092,3 +1092,263 @@ plink_rm_high_ld <- function(bfile, output.prefix,
   )
   
 }
+
+#' Quality control on marker level with PLINK
+#'
+#' @param bfile              [\code{string}]\cr
+#'                           The basename of the binary PLINK files.
+#' @param output.prefix      [\code{string}]\cr
+#'                           The basename of the new binary PLINK files.
+#' @param call.rate          [\code{double}]\cr
+#'                           Filter out all variants with call rates falling below the provided threshold.
+#' @param min.maf            [\code{double}]\cr
+#'                           Filter out all variants with minor allele frequency below the provided threshold.
+#' @param max.maf            [\code{double}]\cr#'                           
+#'                           Filter out all variants with minor allele frequency above the provided threshold.
+#' @param hwe.pval           [\code{double}]\cr
+#'                           Filter out all variants which have Hardy-Weinberg equilibrium exact test p-value below the provided threshold.
+#' @param ...                [\code{character}]\cr
+#'                           Additional arguments passed to PLINK.
+#' @param bed.file           [\code{string}]\cr
+#'                           Alternative to \code{bfile} interface. Specify \code{bed}, \code{bim} and \code{fam} files individually.
+#' @param bim.file           [\code{string}]\cr
+#'                           Alternative to \code{bfile} interface. Specify \code{bed}, \code{bim} and \code{fam} files individually.
+#' @param fam.file           [\code{string}]\cr
+#'                           Alternative to \code{bfile} interface. Specify \code{bed}, \code{bim} and \code{fam} files individually.
+#' @param exec               [\code{string}]\cr
+#'                           Path of PLINK executable.
+#' @param num.threads        [\code{int}]\cr
+#'                           Number of CPUs usable by PLINK.
+#'                           Default is determined by SLURM environment variables and at least 1.
+#' @param memory             [\code{int}]\cr
+#'                           Memory for PLINK in Mb.
+#'                           Default is determined by minimum of SLURM environment variables \code{SLURM_MEM_PER_CPU} and \code{num.threads * SLURM_MEM_PER_NODE} and at least 5000.
+#'
+#' @details See PLINK manual \url{https://www.cog-genomics.org/plink/1.9/}.
+#'
+#' @return Captured system output as \code{character} vector.
+#' @export
+#'
+#' @import checkmate tools
+#'
+plink_marker_qc <- function(bfile, output.prefix, 
+                            call.rate, min.maf, max.maf, hwe.pval, ...,
+                            bed.file = NULL, bim.file = NULL, fam.file = NULL,
+                            exec = "plink2",
+                            num.threads,
+                            memory) {
+  
+  assertions <- checkmate::makeAssertCollection()
+  
+  if (!missing(bfile)) {
+    checkmate::assert_file(sprintf("%s.bed", bfile), add = assertions)
+    checkmate::assert_file(sprintf("%s.bim", bfile), add = assertions)
+    checkmate::assert_file(sprintf("%s.fam", bfile), add = assertions)
+    input <- sprintf("--bfile %s", bfile)
+  } else {
+    checkmate::assert_file(bed.file, add = assertions)
+    checkmate::assert_file(bim.file, add = assertions)
+    checkmate::assert_file(fam.file, add = assertions)
+    input <- sprintf("--bed %s --bim %s --fam %s", bed.file, bim.file, fam.file)
+  }
+  
+  checkmate::assert_string(output.prefix, add = assertions)
+  checkmate::assert_directory(dirname(output.prefix), add = assertions)
+  
+  if (!missing(call.rate)) {
+    checkmate::assert_number(call.rate, lower = 0, upper = 1, finite = TRUE, null.ok = FALSE, add = assertions)
+    geno <- sprintf("--geno %f", 1 - call.rate)
+  } else {
+    geno <- NULL
+  }
+  if (!missing(min.maf)) {
+    checkmate::assert_number(min.maf, lower = 0, upper = 1, finite = TRUE, null.ok = FALSE, add = assertions)
+    min_maf <- sprintf("--maf %f", min.maf)
+  } else {
+    min_maf <- NULL
+  }
+  if (!missing(max.maf)) {
+    checkmate::assert_number(max.maf, lower = 0, upper = 1, finite = TRUE, null.ok = FALSE, add = assertions)
+    max_maf <- sprintf("--max-maf %f", max.maf)
+  } else {
+    max_maf <- NULL
+  }
+  if (!missing(hwe.pval)) {
+    checkmate::assert_number(hwe.pval, lower = 0, upper = 1, finite = TRUE, null.ok = FALSE, add = assertions)
+    hwe_pval <- sprintf("--max-maf %f", hwe.pval)
+  } else {
+    hwe_pval <- NULL
+  }
+  
+  assert_command(exec, add = assertions)
+  
+  if (missing(num.threads)) {     
+    num.threads <- max(1, as.integer(Sys.getenv("SLURM_CPUS_PER_TASK")), na.rm = TRUE)   
+  }   
+  checkmate::assert_int(num.threads, lower = 1, add = assertions)
+  if (missing(memory)) {     
+    memory = max(5000,                   
+                 min(as.integer(Sys.getenv("SLURM_MEM_PER_NODE")) - 1000,                       
+                     num.threads * as.integer(Sys.getenv("SLURM_MEM_PER_CPU")) - 1000, na.rm = TRUE),                   
+                 na.rm = TRUE)   
+  }   
+  checkmate::assert_int(memory, lower = 1000, add = assertions)
+  
+  checkmate::reportAssertions(assertions)
+  
+  system_call(
+    bin = exec,
+    args = c(input,
+             "--threads", num.threads,
+             "--memory", memory,
+             geno, 
+             min_maf, 
+             max_maf, 
+             hwe_pval,
+             "--keep-allele-order",
+             "--allow-extra-chr",
+             "--make-bed",
+             "--out", output.prefix, ...)
+  )
+  
+}
+
+
+#' Quality control on sample level with PLINK
+#'
+#' @param bfile              [\code{string}]\cr
+#'                           The basename of the binary PLINK files.
+#' @param output.prefix      [\code{string}]\cr
+#'                           The basename of the new binary PLINK files.
+#' @param call.rate          [\code{double}]\cr
+#'                           Filter out all samples with call rates falling below the provided threshold.
+#' @param het.sigma          [\code{double}]\cr
+#'                           Filter out all samples with mean heterozygosity rate above or below \code{het.sigma} times estimated heterozygosity standard deviation.
+#' @param ld.pruning.params  [\code{list}]\cr
+#'                           List with function arguments passed to \code{\link{plink_ld_pruning}}.
+#' @param ...                [\code{character}]\cr
+#'                           Additional arguments passed to PLINK.
+#' @param bed.file           [\code{string}]\cr
+#'                           Alternative to \code{bfile} interface. Specify \code{bed}, \code{bim} and \code{fam} files individually.
+#' @param bim.file           [\code{string}]\cr
+#'                           Alternative to \code{bfile} interface. Specify \code{bed}, \code{bim} and \code{fam} files individually.
+#' @param fam.file           [\code{string}]\cr
+#'                           Alternative to \code{bfile} interface. Specify \code{bed}, \code{bim} and \code{fam} files individually.
+#' @param exec               [\code{string}]\cr
+#'                           Path of PLINK executable.
+#' @param num.threads        [\code{int}]\cr
+#'                           Number of CPUs usable by PLINK.
+#'                           Default is determined by SLURM environment variables and at least 1.
+#' @param memory             [\code{int}]\cr
+#'                           Memory for PLINK in Mb.
+#'                           Default is determined by minimum of SLURM environment variables \code{SLURM_MEM_PER_CPU} and \code{num.threads * SLURM_MEM_PER_NODE} and at least 5000.
+#'
+#' @details Heterozygosity estimation is not LD-sensitive, thus LD pruning is performend first using \code{\link{plink_ld_pruning}}. See PLINK manual \url{https://www.cog-genomics.org/plink/1.9/}.
+#'
+#' @return Captured system outputs as \code{list} of \code{character} vectors.
+#' @export
+#'
+#' @import checkmate tools data.table stats
+#'
+plink_sample_qc <- function(bfile, output.prefix, 
+                            call.rate, het.sigma, 
+                            ld.pruning.params, ...,
+                            bed.file = NULL, bim.file = NULL, fam.file = NULL,
+                            exec = "plink2",
+                            num.threads,
+                            memory) {
+  
+  assertions <- checkmate::makeAssertCollection()
+  
+  if (!missing(bfile)) {
+    checkmate::assert_file(bed_file <- sprintf("%s.bed", bfile), add = assertions)
+    checkmate::assert_file(bim_file <- sprintf("%s.bim", bfile), add = assertions)
+    checkmate::assert_file(fam_file <- sprintf("%s.fam", bfile), add = assertions)
+    input <- sprintf("--bfile %s", bfile)
+  } else {
+    checkmate::assert_file(bed_file <- bed.file, add = assertions)
+    checkmate::assert_file(bim_file <- bim.file, add = assertions)
+    checkmate::assert_file(fam_file <- fam.file, add = assertions)
+    input <- sprintf("--bed %s --bim %s --fam %s", bed.file, bim.file, fam.file)
+  }
+  
+  checkmate::assert_string(output.prefix, add = assertions)
+  checkmate::assert_directory(dirname(output.prefix), add = assertions)
+  
+  if (!missing(call.rate)) {
+    checkmate::assert_number(call.rate, lower = 0, upper = 1, finite = TRUE, null.ok = FALSE, add = assertions)
+    mind <- sprintf("--mind %f", 1 - call.rate)
+  } else {
+    mind <- NULL
+  }
+  if (!missing(het.sigma)) {
+    checkmate::assert_number(het.sigma, lower = 0, finite = TRUE, null.ok = FALSE, add = assertions)
+  }
+  
+  assert_command(exec, add = assertions)
+  
+  if (missing(num.threads)) {     
+    num.threads <- max(1, as.integer(Sys.getenv("SLURM_CPUS_PER_TASK")), na.rm = TRUE)   
+  }   
+  checkmate::assert_int(num.threads, lower = 1, add = assertions)
+  if (missing(memory)) {     
+    memory = max(5000,                   
+                 min(as.integer(Sys.getenv("SLURM_MEM_PER_NODE")) - 1000,                       
+                     num.threads * as.integer(Sys.getenv("SLURM_MEM_PER_CPU")) - 1000, na.rm = TRUE),                   
+                 na.rm = TRUE)   
+  }   
+  checkmate::assert_int(memory, lower = 1000, add = assertions)
+  
+  checkmate::reportAssertions(assertions)
+  
+  ld_log <- do.call(
+    what = plink_ld_pruning, 
+    args = c(ld.pruning.params, 
+             list(output.prefix = output.prefix, 
+                  bed.file = bed_file, 
+                  bim.file = bim_file, 
+                  fam.file = fam_file, 
+                  num.threads = num.threads,
+                  memory = memory
+             )
+    )
+  )
+  
+  het_log <- system_call(
+    bin = exec,
+    args = c(input,
+             "--threads", num.threads,
+             "--memory", memory,
+             sprintf("--extract %s.prune.in", output.prefix),
+             "--keep-allele-order",
+             "--allow-extra-chr",
+             "--het",
+             "--out", output.prefix, ...)
+  )
+  
+  het <- data.table::fread(sprintf("%s.het", output.prefix))
+  het[, HET_RATE := (`N(NM)` - `O(HOM)`)/`N(NM)`]
+  het[, MEAN_HET_RATE := mean(HET_RATE, na.rm = TRUE)]
+  het[, SD_HET_RATE := sd(HET_RATE, na.rm = TRUE)]
+  fwrite(
+    x = het[HET_RATE < MEAN_HET_RATE - het.sigma*SD_HET_RATE | HET_RATE > MEAN_HET_RATE + het.sigma*SD_HET_RATE],
+    file = sprintf("%s.het_remove", output.prefix),
+    sep = "\t", col.names = FALSE, row.names = FALSE, quote = FALSE
+  )
+  
+  qc_log <- system_call(
+    bin = exec,
+    args = c(input,
+             "--threads", num.threads,
+             "--memory", memory,
+             sprintf("--remove %s.het_remove", output.prefix),
+             mind,
+             "--keep-allele-order",
+             "--allow-extra-chr",
+             "--het",
+             "--out", output.prefix, ...)
+  )
+  
+  list(ld_log = ld_log, het_log = het_log, qc_log = qc_log)
+    
+}
