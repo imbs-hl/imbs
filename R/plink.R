@@ -1362,7 +1362,7 @@ plink_sample_qc <- function(bfile, output.prefix,
              mind,
              "--keep-allele-order",
              "--allow-extra-chr",
-             "--het",
+             "--make-bed",
              "--out", output.prefix, ...)
   )
   
