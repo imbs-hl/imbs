@@ -1339,8 +1339,8 @@ plink_sample_qc <- function(bfile, output.prefix,
            bim.file = bim_file, 
            fam.file = fam_file, 
            snps.only = "--snps-only just-acgt",
-           num.threads = num.threads,
-           memory = memory
+           num.threads = 1,
+           memory = floor(memory/num.threads)
       )
     ),
     reg = ld_reg
