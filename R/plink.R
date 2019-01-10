@@ -1211,9 +1211,9 @@ plink_marker_qc <- function(bfile, output.prefix,
              "--out", output.prefix, ...)
   )
   
-  num_geno_rm <- as.integer(gsub("^(\\d+) variants removed due to missing genotype data.*", "\\1", grep("^\\d+ variants removed due to missing genotype data.*", log, value = TRUE)))
-  num_hwe_rm <- as.integer(gsub("^--hwe: (\\d+) variants.*", "\\1", grep("^--hwe: \\d", log, value = TRUE)))
-  num_maf_rm <- as.integer(gsub("^(\\d+) variants removed due to minor allele threshold.*", "\\1", grep("^\\d+ variants removed due to minor allele threshold.*", log, value = TRUE)))
+  num_geno_rm <- as.integer(gsub("^(\\d+) variants? removed due to missing genotype data.*", "\\1", grep("^\\d+ variants? removed due to missing genotype data.*", log, value = TRUE)))
+  num_hwe_rm <- as.integer(gsub("^--hwe: (\\d+) variants?.*", "\\1", grep("^--hwe: \\d", log, value = TRUE)))
+  num_maf_rm <- as.integer(gsub("^(\\d+) variants? removed due to minor allele threshold.*", "\\1", grep("^\\d+ variants? removed due to minor allele threshold.*", log, value = TRUE)))
   
   return(
     list(
