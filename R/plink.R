@@ -142,7 +142,7 @@ plink_subset <- function(bfile, output.prefix, remove, keep, exclude, extract, .
              exclude,
              "--make-bed",
              "--keep-allele-order",
-             "--allow-extra-chr", "0",
+             "--allow-extra-chr",
              "--out", output.prefix, ...)
   )
   
@@ -219,7 +219,7 @@ plink_normalize_vcf_conversion <- function(vcf.file, ref.file, output.prefix, ..
              plink.exec, "--bcf", "/dev/stdin",
              "--vcf-idspace-to", "_",
              "--keep-allele-order",
-             "--allow-extra-chr", "0",
+             "--allow-extra-chr",
              "--split-x", build, "no-fail",
              "--threads", num.threads,
              "--memory", memory,
@@ -293,7 +293,7 @@ plink_vcf_conversion <- function(vcf.file, output.prefix, ...,
     args = c("--vcf", vcf.file,
              "--vcf-idspace-to", "_",
              "--keep-allele-order",
-             "--allow-extra-chr", "0",
+             "--allow-extra-chr",
              "--split-x", build, "no-fail",
              "--threads", num.threads,
              "--memory", memory,
@@ -406,7 +406,7 @@ plink_merge <- function(first.prefix, second.prefix, merge.mode,
              "--threads", num.threads,
              "--memory", memory,
              "--keep-allele-order",
-             "--allow-extra-chr", "0",
+             "--allow-extra-chr",
              "--merge-mode ", merge.mode,
              "--out", output.prefix,
              ...)
@@ -521,7 +521,7 @@ plink_ld_pruning <- function(bfile, output.prefix,
              "--threads", num.threads,
              "--memory", memory,
              "--keep-allele-order",
-             "--allow-extra-chr", "0",
+             "--allow-extra-chr",
              chr,
              "--indep-pairwise", window_size, step_size, threshold,
              "--out", output.prefix, ...)
@@ -609,7 +609,7 @@ plink_sex_imputation <- function(bfile, output.prefix,
              "--memory", memory,
              "--impute-sex", f.values,
              "--keep-allele-order",
-             "--allow-extra-chr", "0",
+             "--allow-extra-chr",
              "--make-bed",
              "--out", output.prefix, ...)
   )
@@ -709,7 +709,7 @@ plink_merge_list <- function(bfile, output.prefix,
              "--merge-list", merge.list,
              merge.mode,
              "--keep-allele-order",
-             "--allow-extra-chr", "0",
+             "--allow-extra-chr",
              "--make-bed",
              "--out", output.prefix, ...)
   )
@@ -1092,4 +1092,3 @@ plink_rm_high_ld <- function(bfile, output.prefix,
   )
   
 }
-
