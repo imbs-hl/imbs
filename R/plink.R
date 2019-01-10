@@ -1308,6 +1308,7 @@ plink_sample_qc <- function(bfile, output.prefix,
                   bed.file = bed_file, 
                   bim.file = bim_file, 
                   fam.file = fam_file, 
+                  snps.only = "--snps-only just-acgt",
                   num.threads = num.threads,
                   memory = memory
              )
@@ -1322,7 +1323,6 @@ plink_sample_qc <- function(bfile, output.prefix,
              sprintf("--extract %s.prune.in", output.prefix),
              "--keep-allele-order",
              "--allow-extra-chr",
-             "--snps-only just-acgt",
              "--het",
              "--out", output.prefix, ...)
   )
