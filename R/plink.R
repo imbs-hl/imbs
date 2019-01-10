@@ -1347,7 +1347,7 @@ plink_sample_qc <- function(bfile, output.prefix,
   het[, HET_RATE := (`N(NM)` - `O(HOM)`)/`N(NM)`]
   het[, MEAN_HET_RATE := mean(HET_RATE, na.rm = TRUE)]
   het[, SD_HET_RATE := sd(HET_RATE, na.rm = TRUE)]
-  fwrite(
+  data.table::fwrite(
     x = het[HET_RATE < MEAN_HET_RATE - het.sigma*SD_HET_RATE | HET_RATE > MEAN_HET_RATE + het.sigma*SD_HET_RATE],
     file = sprintf("%s.het_remove", output.prefix),
     sep = "\t", col.names = FALSE, row.names = FALSE, quote = FALSE
@@ -1366,7 +1366,7 @@ plink_sample_qc <- function(bfile, output.prefix,
              "--out", output.prefix, ...)
   )
   
-  num_mind_rm <- as.integer(gsub("^(\\d+) people removed due to missing genotype data.*", "\\1", grep("^\\d+ people removed due to missing genotype data.*", log, value = TRUE)))
+  num_mind_rm <- as.integer(gsub("^(\\d+) people removed due to missing genotype data.*", "\\1", grep("^\\d+ people removed due to missing genotype data.*", qc_log, value = TRUE)))
   num_het_rm <- het[HET_RATE < MEAN_HET_RATE - het.sigma*SD_HET_RATE | HET_RATE > MEAN_HET_RATE + het.sigma*SD_HET_RATE, .N]
   
   return(
