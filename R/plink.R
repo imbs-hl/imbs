@@ -1126,7 +1126,7 @@ plink_rm_high_ld <- function(bfile, output.prefix,
 #'
 #' @details See PLINK manual \url{https://www.cog-genomics.org/plink/1.9/}.
 #'
-#' @return Captured system output as \code{character} vector.
+#' @return Captured system output as \code{character} vector and number of markers excluded per criteria.
 #' @export
 #'
 #' @import checkmate tools
@@ -1196,7 +1196,7 @@ plink_marker_qc <- function(bfile, output.prefix,
   
   checkmate::reportAssertions(assertions)
   
-  system_call(
+  log <- system_call(
     bin = exec,
     args = c(input,
              "--threads", num.threads,
@@ -1209,6 +1209,20 @@ plink_marker_qc <- function(bfile, output.prefix,
              "--allow-extra-chr",
              "--make-bed",
              "--out", output.prefix, ...)
+  )
+  
+  num_geno_rm <- as.integer(gsub("^(\\d+) variants removed due to missing genotype data.*", "\\1", grep("^\\d+ variants removed due to missing genotype data.*", log, value = TRUE)))
+  num_hwe_rm <- as.integer(gsub("^--hwe: (\\d+) variants.*", "\\1", grep("^--hwe: \\d", log, value = TRUE)))
+  num_maf_rm <- as.integer(gsub("^(\\d+) variants removed due to minor allele threshold.*", "\\1", grep("^\\d+ variants removed due to minor allele threshold.*", log, value = TRUE)))
+  
+  return(
+    list(
+      num_marker_rm = num_geno_rm + num_hwe_rm + num_maf_rm,
+      num_geno_rm = num_geno_rm,
+      num_hwe_rm = num_hwe_rm,
+      num_maf_rm = num_maf_rm,
+      log = log
+    )
   )
   
 }
@@ -1227,7 +1241,7 @@ plink_marker_qc <- function(bfile, output.prefix,
 #' @param ld.pruning.params  [\code{list}]\cr
 #'                           List with function arguments passed to \code{\link{plink_ld_pruning}}.
 #' @param ...                [\code{character}]\cr
-#'                           Additional arguments passed to PLINK.
+#'                           Additional arguments passed to ALL PLINK calls (LD pruning, heterozygosity estimation, exclusion of samples).
 #' @param bed.file           [\code{string}]\cr
 #'                           Alternative to \code{bfile} interface. Specify \code{bed}, \code{bim} and \code{fam} files individually.
 #' @param bim.file           [\code{string}]\cr
@@ -1245,7 +1259,7 @@ plink_marker_qc <- function(bfile, output.prefix,
 #'
 #' @details Heterozygosity estimation is not LD-sensitive, thus LD pruning is performend first using \code{\link{plink_ld_pruning}}. Heterozygosity estimate is based on SNPs only. See PLINK manual \url{https://www.cog-genomics.org/plink/1.9/}.
 #'
-#' @return Captured system outputs as \code{list} of \code{character} vectors.
+#' @return Captured system outputs as \code{list} of \code{character} vectors and number of samples excluded per criteria.
 #' @export
 #'
 #' @import checkmate tools data.table stats
@@ -1303,15 +1317,17 @@ plink_sample_qc <- function(bfile, output.prefix,
   
   ld_log <- do.call(
     what = plink_ld_pruning, 
-    args = c(ld.pruning.params, 
-             list(output.prefix = output.prefix, 
-                  bed.file = bed_file, 
-                  bim.file = bim_file, 
-                  fam.file = fam_file, 
-                  snps.only = "--snps-only just-acgt",
-                  num.threads = num.threads,
-                  memory = memory
-             )
+    args = c(
+      ld.pruning.params, 
+      list(output.prefix = output.prefix, 
+           bed.file = bed_file, 
+           bim.file = bim_file, 
+           fam.file = fam_file, 
+           snps.only = "--snps-only just-acgt",
+           num.threads = num.threads,
+           memory = memory
+      ),
+      ...
     )
   )
   
@@ -1350,6 +1366,18 @@ plink_sample_qc <- function(bfile, output.prefix,
              "--out", output.prefix, ...)
   )
   
-  list(ld_log = ld_log, het_log = het_log, qc_log = qc_log)
+  num_mind_rm <- as.integer(gsub("^(\\d+) people removed due to missing genotype data.*", "\\1", grep("^\\d+ people removed due to missing genotype data.*", log, value = TRUE)))
+  num_het_rm <- het[HET_RATE < MEAN_HET_RATE - het.sigma*SD_HET_RATE | HET_RATE > MEAN_HET_RATE + het.sigma*SD_HET_RATE, .N]
+  
+  return(
+    list(
+      num_sample_rm = num_mind_rm + num_het_rm,
+      num_mind_rm = num_mind_rm,
+      num_het_rm = num_het_rm,
+      ld_log = ld_log, 
+      het_log = het_log, 
+      qc_log = qc_log
+    )
+  )
   
 }
