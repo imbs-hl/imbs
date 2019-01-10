@@ -51,7 +51,7 @@ Memory for PLINK in Mb.
 Default is determined by minimum of SLURM environment variables \code{SLURM_MEM_PER_CPU} and \code{num.threads * SLURM_MEM_PER_NODE} and at least 5000.}
 }
 \value{
-Captured system output as \code{character} vector.
+Captured system output as \code{character} vector and number of markers excluded per criteria.
 }
 \description{
 Quality control on marker level with PLINK

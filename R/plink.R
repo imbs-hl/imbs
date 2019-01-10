@@ -1318,6 +1318,15 @@ plink_sample_qc <- function(bfile, output.prefix,
   
   checkmate::reportAssertions(assertions)
   
+  reg_dir <- tempdir()
+  ld_reg <- load_or_create_registry(
+    file.dir = reg_dir,
+    work.dir = dirname(output.prefix),
+    writeable = TRUE,
+    overwrite = TRUE,
+    packages = c("imbs")
+  )
+  
   ld_log <- do.call(
     what = plink_ld_pruning, 
     args = c(

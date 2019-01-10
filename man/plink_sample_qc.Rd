@@ -25,7 +25,7 @@ Filter out all samples with mean heterozygosity rate above or below \code{het.si
 List with function arguments passed to \code{\link{plink_ld_pruning}}.}
 
 \item{...}{[\code{character}]\cr
-Additional arguments passed to PLINK.}
+Additional arguments passed to ALL PLINK calls (LD pruning, heterozygosity estimation, exclusion of samples).}
 
 \item{bed.file}{[\code{string}]\cr
 Alternative to \code{bfile} interface. Specify \code{bed}, \code{bim} and \code{fam} files individually.}
@@ -48,7 +48,7 @@ Memory for PLINK in Mb.
 Default is determined by minimum of SLURM environment variables \code{SLURM_MEM_PER_CPU} and \code{num.threads * SLURM_MEM_PER_NODE} and at least 5000.}
 }
 \value{
-Captured system outputs as \code{list} of \code{character} vectors.
+Captured system outputs as \code{list} of \code{character} vectors and number of samples excluded per criteria.
 }
 \description{
 Quality control on sample level with PLINK
