@@ -1263,6 +1263,7 @@ plink_marker_qc <- function(bfile, output.prefix,
 #' @export
 #'
 #' @import checkmate tools data.table stats
+#' @importFrom batchtools makeRegistry reduceResultsList
 #'
 plink_sample_qc <- function(bfile, output.prefix, 
                             call.rate, het.sigma, 
@@ -1318,29 +1319,46 @@ plink_sample_qc <- function(bfile, output.prefix,
   
   checkmate::reportAssertions(assertions)
   
-  reg_dir <- tempdir()
-  ld_reg <- load_or_create_registry(
+  reg_dir <- tempfile(pattern = "reg")
+  file.create(conf_file <- tempfile())
+  writeLines(sprintf("cluster.functions = batchtools::makeClusterFunctionsSocket(ncpus = %d)", num.threads), con = conf_file)
+  ld_reg <- batchtools::makeRegistry(
     file.dir = reg_dir,
     work.dir = dirname(output.prefix),
-    writeable = TRUE,
-    overwrite = TRUE,
-    packages = c("imbs")
+    packages = c("imbs"),
+    conf.file = conf_file
   )
   
-  ld_log <- do.call(
-    what = plink_ld_pruning, 
-    args = c(
+  batchtools::batchMap(
+    fun = plink_ld_pruning, 
+    chr = 1:22,
+    output.prefix = sprintf("%s_chr%d", output.prefix, 1:22),
+    more.args = c(
       ld.pruning.params, 
-      list(output.prefix = output.prefix, 
-           bed.file = bed_file, 
+      list(bed.file = bed_file, 
            bim.file = bim_file, 
            fam.file = fam_file, 
            snps.only = "--snps-only just-acgt",
            num.threads = num.threads,
            memory = memory
-      ),
-      ...
-    )
+      )
+    ),
+    reg = ld_reg
+  )
+  
+  batchtools::submitJobs(reg = ld_reg)
+  
+  if (!batchtools::waitForJobs(reg = ld_reg)) {
+    stop(sprintf("LD pruning failed! Check registry at %s", reg_dir))
+  }
+  
+  ld_log <- batchtools::reduceResultsList(reg = ld_reg)
+  
+  file.remove(sprintf("%s.prune.in", output.prefix))
+  file.create(sprintf("%s.prune.in", output.prefix))
+  lapply(
+    X = 1:22, 
+    FUN =  function(chr) file.append(sprintf("%s.prune.in", output.prefix), sprintf("%s_chr%d.prune.in", output.prefix, chr))
   )
   
   het_log <- system_call(
@@ -1386,7 +1404,7 @@ plink_sample_qc <- function(bfile, output.prefix,
       num_sample_rm = num_mind_rm + num_het_rm,
       num_mind_rm = num_mind_rm,
       num_het_rm = num_het_rm,
-      ld_log = ld_log, 
+      ld_log = ld_log,
       het_log = het_log, 
       qc_log = qc_log
     )
