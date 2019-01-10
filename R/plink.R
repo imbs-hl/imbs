@@ -1299,6 +1299,9 @@ plink_sample_qc <- function(bfile, output.prefix,
     checkmate::assert_number(het.sigma, lower = 0, finite = TRUE, null.ok = FALSE, add = assertions)
   }
   
+  checkmate::assert_list(ld.pruning.params, len = 3, names = "unique", any.missing = FALSE, all.missing = FALSE, null.ok = FALSE, add = assertions)
+  checkmate::assert_subset(names(ld.pruning.params), c("window.size", "kb.window", "step.size"), add = assertions)
+  
   assert_command(exec, add = assertions)
   
   if (missing(num.threads)) {     
