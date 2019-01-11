@@ -1340,7 +1340,8 @@ plink_sample_qc <- function(bfile, output.prefix,
            fam.file = fam_file, 
            snps.only = "--snps-only just-acgt",
            num.threads = 1,
-           memory = floor(memory/num.threads)
+           memory = floor(memory/num.threads),
+           exec = exec
       )
     ),
     reg = ld_reg
