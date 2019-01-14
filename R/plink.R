@@ -11,7 +11,7 @@
 #' @return NULL
 #' @import utils
 #' @export
-write_plink_ids <- function(ids, file, update, sample = TRUE) {
+plink_write_ids <- function(ids, file, update, sample = TRUE) {
   if (sample) {
     out <- cbind(ids, ids)
   } else {
