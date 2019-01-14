@@ -37,6 +37,7 @@
 #' @importFrom BatchJobs findNotDone
 #' @importFrom BatchJobs submitJobs
 #' @importFrom BatchJobs waitForJobs
+#' @importFrom BatchJobs findJobs
 update_system2_job <- function(reg.name,
                                reg.dir,
                                work.dir,
@@ -85,8 +86,8 @@ update_system2_job <- function(reg.name,
                       seed = seed)
   
   # Add jobs to map, if reg is empty
-  if (length(findJobs(reg))) {
-    ids <- findJobs(reg)
+  if (length(BatchJobs::findJobs(reg))) {
+    ids <- BatchJobs::findJobs(reg)
   } else {
     # build job map
     message('Build job map')
