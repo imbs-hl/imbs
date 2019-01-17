@@ -1329,10 +1329,19 @@ plink_sample_qc <- function(bfile, output.prefix,
     conf.file = conf_file
   )
   
+  chromosomes <- intersect(
+    data.table::fread(cmd = sprintf("awk '{chr[$1]++} END {for (key in chr) print key}' %s", bim_file), col.names = "CHR")$CHR, # chromosomes in dataset
+    1:22 # autosomes
+  )
+  
+  if (length(chromosomes) == 0) {
+    stop("No autosomes in dataset!")
+  }
+  
   batchtools::batchMap(
     fun = plink_ld_pruning, 
-    chr = 1:22,
-    output.prefix = sprintf("%s_chr%d", output.prefix, 1:22),
+    chr = chromosomes,
+    output.prefix = sprintf("%s_chr%d", output.prefix, chromosomes),
     more.args = c(
       ld.pruning.params, 
       list(bed.file = bed_file, 
@@ -1564,10 +1573,19 @@ plink_pca <- function(bfile, output.prefix,
     conf.file = conf_file
   )
   
+  chromosomes <- intersect(
+    data.table::fread(cmd = sprintf("awk '{chr[$1]++} END {for (key in chr) print key}' %s", bim_file), col.names = "CHR")$CHR, # chromosomes in dataset
+    1:22 # autosomes
+  )
+  
+  if (length(chromosomes) == 0) {
+    stop("No autosomes in dataset!")
+  }
+  
   batchtools::batchMap(
     fun = plink_ld_pruning, 
-    chr = 1:22,
-    output.prefix = sprintf("%s_chr%d", output.prefix, 1:22),
+    chr = chromosomes,
+    output.prefix = sprintf("%s_chr%d", output.prefix, chromosomes),
     more.args = c(
       ld.pruning.params, 
       list(bed.file = bed_file, 
