@@ -1697,6 +1697,7 @@ plink_pca <- function(bfile, output.prefix,
     list(
       outlier_samples = outlier_samples_list,
       outlier_evecs = outlier_evec_list,
+      outlier_evals = outlier_eval_list,
       outlier_logs = outlier_log_list,
       evecs = evecs,
       evals = evals,
