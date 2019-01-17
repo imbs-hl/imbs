@@ -1649,7 +1649,7 @@ plink_pca <- function(bfile, output.prefix,
       
       evals <- cbind(
         "variable" = sprintf("PC%d", 1:num.evec), 
-        "value" = data.table::fread(sprintf("%s.eigenval", output.prefix))
+        "value" = data.table::fread(sprintf("%s.eigenval", outlier_prefix))
       )
       
       outlier_evec_list[[i]] <- data.table::copy(evecs)
