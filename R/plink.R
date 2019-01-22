@@ -1576,10 +1576,19 @@ plink_pca <- function(bfile, output.prefix,
     conf.file = conf_file
   )
   
+  chromosomes <- intersect(
+    data.table::fread(cmd = sprintf("awk '{chr[$1]++} END {for (key in chr) print key}' %s", bim_file), col.names = "CHR")$CHR, # chromosomes in dataset
+    1:22 # autosomes
+  )
+  
+  if (length(chromosomes) == 0) {
+    stop("No autosomes in dataset!")
+  }
+  
   batchtools::batchMap(
     fun = plink_ld_pruning, 
-    chr = 1:22,
-    output.prefix = sprintf("%s_chr%d", output.prefix, 1:22),
+    chr = chromosomes,
+    output.prefix = sprintf("%s_chr%d", output.prefix, chromosomes),
     more.args = c(
       ld.pruning.params, 
       list(bed.file = bed_file, 
@@ -1643,7 +1652,7 @@ plink_pca <- function(bfile, output.prefix,
       
       evals <- cbind(
         "variable" = sprintf("PC%d", 1:num.evec), 
-        "value" = data.table::fread(sprintf("%s.eigenval", output.prefix))
+        "value" = data.table::fread(sprintf("%s.eigenval", outlier_prefix))
       )
       
       outlier_evec_list[[i]] <- data.table::copy(evecs)
@@ -1691,6 +1700,7 @@ plink_pca <- function(bfile, output.prefix,
     list(
       outlier_samples = outlier_samples_list,
       outlier_evecs = outlier_evec_list,
+      outlier_evals = outlier_eval_list,
       outlier_logs = outlier_log_list,
       evecs = evecs,
       evals = evals,
