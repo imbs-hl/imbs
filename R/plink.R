@@ -1446,7 +1446,7 @@ plink_sample_qc <- function(bfile, output.prefix,
 #' @param num.evec           [\code{int}]\cr
 #'                           Number of principal componentns to calculate.
 #' @param ...                [\code{character}]\cr
-#'                           Additional arguments passed to ALL PLINK calls (LD pruning, heterozygosity estimation, exclusion of samples).
+#'                           Additional arguments passed to PLINK call.
 #' @param exec               [\code{string}]\cr
 #'                           Path of PLINK executable.
 #' @param num.threads        [\code{int}]\cr
@@ -1468,6 +1468,51 @@ plink_sample_qc <- function(bfile, output.prefix,
       sprintf("--fam %s", fam.file),
       sprintf("--out %s", output.prefix),
       sprintf("--pca %d header", num.evec),
+      "--threads", num.threads,
+      "--memory", memory,
+      "--keep-allele-order",
+      "--allow-extra-chr", ...
+    )
+  )
+  
+}
+
+#' Internal Fst computation with PLINK
+#'
+#' @param bed.file           [\code{string}]\cr
+#'                           Alternative to \code{bfile} interface. Specify \code{bed}, \code{bim} and \code{fam} files individually.
+#' @param bim.file           [\code{string}]\cr
+#'                           Alternative to \code{bfile} interface. Specify \code{bed}, \code{bim} and \code{fam} files individually.
+#' @param fam.file           [\code{string}]\cr
+#'                           Alternative to \code{bfile} interface. Specify \code{bed}, \code{bim} and \code{fam} files individually.
+#' @param output.prefix      [\code{string}]\cr
+#'                           The basename of the output files.
+#' @param pop.file           [\code{string}]\cr
+#'                           File defining disjoint clusters/strata of samples. FIDs in the first column, IIDs in the second column, and cluster names in the third column.
+#' @param ...                [\code{character}]\cr
+#'                           Additional arguments passed to PLINK call.
+#' @param exec               [\code{string}]\cr
+#'                           Path of PLINK executable.
+#' @param num.threads        [\code{int}]\cr
+#'                           Number of CPUs usable by PLINK.
+#'                           Default is determined by SLURM environment variables and at least 1.
+#' @param memory             [\code{int}]\cr
+#'                           Memory for PLINK in Mb.
+#'                           Default is determined by minimum of SLURM environment variables \code{SLURM_MEM_PER_CPU} and \code{num.threads * SLURM_MEM_PER_NODE} and at least 5000.
+#'
+#' @return Captured system outputs as \code{list} of \code{character} vectors and number of samples excluded per criteria.
+#' 
+.plink_fst <- function(bed.file, bim.file, fam.file, output.prefix, pop.file, ..., exec, num.threads, memory) {
+  
+  system_call(
+    bin = exec,
+    args = c(
+      sprintf("--bed %s", bed.file),
+      sprintf("--bim %s", bim.file),
+      sprintf("--fam %s", fam.file),
+      sprintf("--out %s", output.prefix),
+      sprintf("--fst"),
+      sprintf("--within %d", pop.file),
       "--threads", num.threads,
       "--memory", memory,
       "--keep-allele-order",
@@ -1700,9 +1745,247 @@ plink_pca <- function(bfile, output.prefix,
   evecs <- data.table::fread(sprintf("%s.eigenvec", output.prefix))
   evals <- cbind(
     "variable" = sprintf("PC%d", 1:num.evec), 
-                 "value" = data.table::fread(sprintf("%s.eigenval", output.prefix))
-    )
+    "value" = data.table::fread(sprintf("%s.eigenval", output.prefix))
+  )
   evecs <- data.table::melt(evecs, id.vars = c("FID", "IID"))
+  
+  return(
+    list(
+      outlier_samples = outlier_samples_list,
+      outlier_evecs = outlier_evec_list,
+      outlier_evals = outlier_eval_list,
+      outlier_logs = outlier_log_list,
+      evecs = evecs,
+      evals = evals,
+      ld_log = ld_log,
+      pca_log = pca_log
+    )
+  )
+  
+}
+
+#' Fst with PLINK
+#'
+#' @param bfile              [\code{string}]\cr
+#'                           The basename of the binary PLINK files.
+#' @param output.prefix      [\code{string}]\cr
+#'                           The basename of the new binary PLINK files.
+#' @param pop.file           [\code{string}]\cr
+#'                           File defining disjoint clusters/strata of samples. FIDs in the first column, IIDs in the second column, and cluster names in the third column.
+#' @param outlier.removal    [\code{flag}]\cr
+#'                           Indicate if outliers shall be removed before final PCA computation.
+#' @param outlier.sigma      [\code{int}]\cr
+#'                           How many standard deviations from the mean of a single PC is not an outlier?
+#' @param num.outlier.evec   [\code{int}]\cr
+#'                           How many PCs shall be used for outlier detection?
+#' @param num.outlier.iter   [\code{int}]\cr
+#'                           Number of outlier iterations.
+#' @param ld.pruning.params  [\code{list}]\cr
+#'                           List with function arguments passed to \code{\link{plink_ld_pruning}}.
+#' @param bed.file           [\code{string}]\cr
+#'                           Alternative to \code{bfile} interface. Specify \code{bed}, \code{bim} and \code{fam} files individually.
+#' @param bim.file           [\code{string}]\cr
+#'                           Alternative to \code{bfile} interface. Specify \code{bed}, \code{bim} and \code{fam} files individually.
+#' @param fam.file           [\code{string}]\cr
+#'                           Alternative to \code{bfile} interface. Specify \code{bed}, \code{bim} and \code{fam} files individually.
+#' @param exec               [\code{string}]\cr
+#'                           Path of PLINK executable.
+#' @param num.threads        [\code{int}]\cr
+#'                           Number of CPUs usable by PLINK.
+#'                           Default is determined by SLURM environment variables and at least 1.
+#' @param memory             [\code{int}]\cr
+#'                           Memory for PLINK in Mb.
+#'                           Default is determined by minimum of SLURM environment variables \code{SLURM_MEM_PER_CPU} and \code{num.threads * SLURM_MEM_PER_NODE} and at least 5000.
+#'
+#' @details First independent SNPs are extracted using PLINK LD pruning (\code{plink_ld_pruning}). If requested, outliers are detected and removed by calculating a PCA, calculating the mean (\eqn{\hat{\mu}_{j}}) and standard deviation (\eqn{\hat{\sigma}_{j}}) of each principal component, and excluding those samples who's PC value \eqn{v_{j}} exceeds \eqn{\hat{\mu}_{j}\pm\nu\,\hat{\sigma}_{j}} for at least one \eqn{j}, where \eqn{\nu} is \code{outlier.sigma}.
+#'
+#' @return A \code{list} of logs, Eigenvectors and Eigenvalues of the outlier removal and the final Fst values.
+#' @export
+#' 
+#' @import checkmate tools data.table
+#' @importFrom batchtools makeRegistry reduceResultsList batchMap submitJobs waitForJobs
+#'
+plink_fst <- function(bfile, output.prefix, 
+                      pop.file, 
+                      outlier.removal = FALSE, outlier.sigma, num.outlier.evec, num.outlier.iter,
+                      ld.pruning.params,
+                      bed.file = NULL, bim.file = NULL, fam.file = NULL,
+                      exec = "plink2",
+                      num.threads,
+                      memory) {
+  
+  assertions <- checkmate::makeAssertCollection()
+  
+  if (!missing(bfile)) {
+    checkmate::assert_file(bed_file <- sprintf("%s.bed", bfile), add = assertions)
+    checkmate::assert_file(bim_file <- sprintf("%s.bim", bfile), add = assertions)
+    checkmate::assert_file(fam_file <- sprintf("%s.fam", bfile), add = assertions)
+    input <- sprintf("--bfile %s", bfile)
+  } else {
+    checkmate::assert_file(bed_file <- bed.file, add = assertions)
+    checkmate::assert_file(bim_file <- bim.file, add = assertions)
+    checkmate::assert_file(fam_file <- fam.file, add = assertions)
+    input <- sprintf("--bed %s --bim %s --fam %s", bed.file, bim.file, fam.file)
+  }
+  
+  checkmate::assert_string(output.prefix, add = assertions)
+  checkmate::assert_directory(dirname(output.prefix), add = assertions)
+  
+  checkmate::assert_string(pop.file, add = assertions)
+  checkmate::assert_file(pop.file, add = assertions)
+  
+  checkmate::assert_flag(outlier.removal, add = assertions)
+  if (outlier.removal) {
+    checkmate::assert_number(outlier.sigma, na.ok = FALSE, lower = 0, upper = Inf, finite = TRUE, null.ok = FALSE, add = assertions)
+    checkmate::assert_int(num.outlier.evec, na.ok = FALSE, lower = 1, upper = Inf, null.ok = FALSE, add = assertions)
+    checkmate::assert_int(num.outlier.iter, na.ok = FALSE, lower = 1, upper = Inf, null.ok = FALSE, add = assertions)
+  }  else {
+    num.outlier.iter = 0
+  }
+  
+  checkmate::assert_list(ld.pruning.params, min.len = 3, names = "unique", any.missing = FALSE, all.missing = FALSE, null.ok = FALSE, add = assertions)
+  checkmate::assert_subset(c("window.size", "step.size", "threshold"), names(ld.pruning.params), add = assertions)
+  
+  assert_command(exec, add = assertions)
+  
+  if (missing(num.threads)) {     
+    num.threads <- max(1, as.integer(Sys.getenv("SLURM_CPUS_PER_TASK")), na.rm = TRUE)   
+  }   
+  checkmate::assert_int(num.threads, lower = 1, add = assertions)
+  if (missing(memory)) {     
+    memory = max(5000,                   
+                 -min(-(as.integer(Sys.getenv("SLURM_MEM_PER_NODE")) - 1000),                       
+                      -(num.threads * as.integer(Sys.getenv("SLURM_MEM_PER_CPU")) - 1000), na.rm = TRUE),                   
+                 na.rm = TRUE)   
+  }   
+  checkmate::assert_int(memory, lower = 1000, add = assertions)
+  
+  checkmate::reportAssertions(assertions)
+  
+  reg_dir <- tempfile(pattern = "reg")
+  file.create(conf_file <- tempfile())
+  writeLines(sprintf("cluster.functions = batchtools::makeClusterFunctionsSocket(ncpus = %d)", num.threads), con = conf_file)
+  ld_reg <- batchtools::makeRegistry(
+    file.dir = reg_dir,
+    work.dir = dirname(output.prefix),
+    packages = c("imbs"),
+    conf.file = conf_file
+  )
+  
+  chromosomes <- intersect(
+    data.table::fread(cmd = sprintf("awk '{chr[$1]++} END {for (key in chr) print key}' %s", bim_file), col.names = "CHR")$CHR, # chromosomes in dataset
+    1:22 # autosomes
+  )
+  
+  if (length(chromosomes) == 0) {
+    stop("No autosomes in dataset!")
+  }
+  
+  batchtools::batchMap(
+    fun = plink_ld_pruning, 
+    chr = chromosomes,
+    output.prefix = sprintf("%s_chr%d", output.prefix, chromosomes),
+    more.args = c(
+      ld.pruning.params, 
+      list(bed.file = bed_file, 
+           bim.file = bim_file, 
+           fam.file = fam_file, 
+           snps.only = "--snps-only just-acgt",
+           num.threads = 1,
+           memory = floor(memory/num.threads),
+           exec = exec
+      )
+    ),
+    reg = ld_reg
+  )
+  
+  batchtools::submitJobs(reg = ld_reg)
+  
+  if (!batchtools::waitForJobs(reg = ld_reg)) {
+    stop(sprintf("LD pruning failed! Check registry at %s", reg_dir))
+  }
+  
+  ld_log <- batchtools::reduceResultsList(reg = ld_reg)
+  
+  prune_in_file <- sprintf("%s.prune.in", output.prefix)
+  file.remove(prune_in_file)
+  file.create(prune_in_file)
+  lapply(
+    X = 1:22, 
+    FUN =  function(chr) file.append(prune_in_file, sprintf("%s_chr%d.prune.in", output.prefix, chr))
+  )
+  
+  rm_samples_file <- sprintf("%s.rm_samples", output.prefix)
+  file.create(rm_samples_file)
+  
+  outlier_evec_list <- vector("list", num.outlier.iter)
+  outlier_eval_list <- vector("list", num.outlier.iter)
+  outlier_samples_list <- vector("list", num.outlier.iter)
+  outlier_log_list <- vector("list", num.outlier.iter)
+  
+  if (outlier.removal) {
+    
+    for (i in seq_len(num.outlier.iter)) {
+      
+      outlier_prefix <- sprintf("%s_outlier_removal_iteration%03d", output.prefix, i)
+      rm_samples_iteration_file <- sprintf("%s.rm_samples", outlier_prefix)
+      
+      outlier_log_list[[i]] <- .plink_pca(
+        bed.file = bed_file, 
+        bim.file = bim_file, 
+        fam.file = fam_file, 
+        output.prefix = outlier_prefix, 
+        num.evec = num.outlier.evec,
+        rm.samples = sprintf("--remove %s", rm_samples_file), 
+        pruned.snps = sprintf("--extract %s", prune_in_file),
+        exec = exec,
+        memory = memory,
+        num.threads = num.threads
+      )
+      
+      evecs <- data.table::fread(sprintf("%s.eigenvec", outlier_prefix))
+      evecs <- data.table::melt(evecs, id.vars = c("FID", "IID"))
+      
+      evals <- cbind(
+        "variable" = sprintf("PC%d", 1:num.evec), 
+        "value" = data.table::fread(sprintf("%s.eigenval", outlier_prefix))
+      )
+      
+      outlier_evec_list[[i]] <- data.table::copy(evecs)
+      outlier_eval_list[[i]] <- data.table::copy(evals)
+      
+      evecs[, MEAN := mean(value, na.rm = TRUE), by = "variable"]
+      evecs[, SD := sd(value, na.rm = TRUE), by = "variable"]
+      evecs[, RM := value < MEAN - outlier.sigma*SD | value > MEAN + outlier.sigma*SD]
+      
+      outlier_samples <- unique(evecs[which(RM), .(FID, IID)])
+      outlier_samples_list[[i]] <- outlier_samples
+      
+      data.table::fwrite(
+        outlier_samples, 
+        file = rm_samples_file, 
+        quote = FALSE, sep = "\t",
+        row.names = FALSE, col.names = FALSE, append = TRUE
+      )
+      data.table::fwrite(
+        outlier_samples, 
+        file = rm_samples_iteration_file, 
+        quote = FALSE, sep = "\t",
+        row.names = FALSE, col.names = FALSE, append = FALSE
+      )
+    }
+    
+  }
+  
+  fst_log <- .plink_fst(
+    bed.file = bed_file, bim.file = bim_file, fam.file = fam_file,
+    output.prefix = output.prefix, pop.file = pop.file,
+    rm.samples = sprintf("--remove %s", rm_samples_file), 
+    pruned.snps = sprintf("--extract %s", prune_in_file),
+    exec = exec, num.threads = num.threads, memory = memory
+  )
+  
+  fst <- data.table::fread(sprintf("%s.fst", output.prefix))
   
   return(
     list(
