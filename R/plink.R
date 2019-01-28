@@ -1725,7 +1725,7 @@ plink_pca <- function(bfile, output.prefix,
       evecs <- data.table::melt(evecs, id.vars = c("FID", "IID"))
       
       evals <- cbind(
-        "variable" = sprintf("PC%d", 1:num.evec), 
+        "variable" = sprintf("PC%d", 1:num.outlier.evec), 
         "value" = data.table::fread(sprintf("%s.eigenval", outlier_prefix))
       )
       
@@ -1978,7 +1978,7 @@ plink_fst <- function(bfile, output.prefix,
       evecs <- data.table::melt(evecs, id.vars = c("FID", "IID"))
       
       evals <- cbind(
-        "variable" = sprintf("PC%d", 1:num.evec), 
+        "variable" = sprintf("PC%d", 1:num.outlier.evec), 
         "value" = data.table::fread(sprintf("%s.eigenval", outlier_prefix))
       )
       
