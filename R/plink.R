@@ -1080,6 +1080,7 @@ plink_rm_high_ld <- function(bfile, output.prefix,
   high_ld_regions[, SetID := sprintf("HiLD%d", .I)]
   
   high_ld_regions_file <- tempfile()
+  on.exit(unlink(high_ld_regions_file, recursive = TRUE, force = TRUE))
   
   fwrite(high_ld_regions, high_ld_regions_file, sep = "\t", row.names = FALSE, col.names = FALSE)
   
@@ -1280,7 +1281,7 @@ plink_sample_qc <- function(bfile, output.prefix,
                             call.rate, het.sigma, 
                             ld.pruning.params, ...,
                             bed.file = NULL, bim.file = NULL, fam.file = NULL,
-                            exec = "plink2",
+                            exec = "plink2", tmp.dir = NULL,
                             num.threads,
                             memory) {
   
@@ -1316,6 +1317,14 @@ plink_sample_qc <- function(bfile, output.prefix,
   
   assert_command(exec, add = assertions)
   
+  if (!missing(tmp.dir)) {
+    checkmate::assert_string(tmp.dir, add = assertions)
+    tmp_dir <- tmp.dir
+    dir.create(tmp.dir, recursive = TRUE)
+  } else {
+    tmp_dir <- tempdir()
+  }
+  
   if (missing(num.threads)) {     
     num.threads <- max(1, as.integer(Sys.getenv("SLURM_CPUS_PER_TASK")), na.rm = TRUE)   
   }   
@@ -1330,8 +1339,10 @@ plink_sample_qc <- function(bfile, output.prefix,
   
   checkmate::reportAssertions(assertions)
   
-  reg_dir <- tempfile(pattern = "reg")
-  file.create(conf_file <- tempfile())
+  reg_dir <- tempfile(pattern = "reg", tmpdir = tmp_dir)
+  on.exit(unlink(reg_dir, recursive = TRUE, force = TRUE))
+  file.create(conf_file <- tempfile(tmpdir = tmp_dir))
+  on.exit(unlink(conf_file, recursive = TRUE, force = TRUE))
   writeLines(sprintf("cluster.functions = batchtools::makeClusterFunctionsSocket(ncpus = %d)", num.threads), con = conf_file)
   ld_reg <- batchtools::makeRegistry(
     file.dir = reg_dir,
@@ -1568,7 +1579,7 @@ plink_pca <- function(bfile, output.prefix,
                       outlier.removal = FALSE, outlier.sigma, num.outlier.evec, num.outlier.iter,
                       ld.pruning.params,
                       bed.file = NULL, bim.file = NULL, fam.file = NULL,
-                      exec = "plink2",
+                      exec = "plink2", tmp.dir = NULL,
                       num.threads,
                       memory) {
   
@@ -1605,6 +1616,14 @@ plink_pca <- function(bfile, output.prefix,
   
   assert_command(exec, add = assertions)
   
+  if (!missing(tmp.dir)) {
+    checkmate::assert_string(tmp.dir, add = assertions)
+    tmp_dir <- tmp.dir
+    dir.create(tmp.dir, recursive = TRUE)
+  } else {
+    tmp_dir <- tempdir()
+  }
+  
   if (missing(num.threads)) {     
     num.threads <- max(1, as.integer(Sys.getenv("SLURM_CPUS_PER_TASK")), na.rm = TRUE)   
   }   
@@ -1619,8 +1638,10 @@ plink_pca <- function(bfile, output.prefix,
   
   checkmate::reportAssertions(assertions)
   
-  reg_dir <- tempfile(pattern = "reg")
-  file.create(conf_file <- tempfile())
+  reg_dir <- tempfile(pattern = "reg", tmpdir = tmp_dir)
+  on.exit(unlink(reg_dir, recursive = TRUE, force = TRUE))
+  file.create(conf_file <- tempfile(tmpdir = tmp_dir))
+  on.exit(unlink(conf_file, recursive = TRUE, force = TRUE))
   writeLines(sprintf("cluster.functions = batchtools::makeClusterFunctionsSocket(ncpus = %d)", num.threads), con = conf_file)
   ld_reg <- batchtools::makeRegistry(
     file.dir = reg_dir,
@@ -1810,7 +1831,7 @@ plink_fst <- function(bfile, output.prefix,
                       outlier.removal = FALSE, outlier.sigma, num.outlier.evec, num.outlier.iter,
                       ld.pruning.params,
                       bed.file = NULL, bim.file = NULL, fam.file = NULL,
-                      exec = "plink2",
+                      exec = "plink2", tmp.dir = NULL,
                       num.threads,
                       memory) {
   
@@ -1848,6 +1869,14 @@ plink_fst <- function(bfile, output.prefix,
   
   assert_command(exec, add = assertions)
   
+  if (!missing(tmp.dir)) {
+    checkmate::assert_string(tmp.dir, add = assertions)
+    tmp_dir <- tmp.dir
+    dir.create(tmp.dir, recursive = TRUE)
+  } else {
+    tmp_dir <- tempdir()
+  }
+  
   if (missing(num.threads)) {     
     num.threads <- max(1, as.integer(Sys.getenv("SLURM_CPUS_PER_TASK")), na.rm = TRUE)   
   }   
@@ -1862,8 +1891,10 @@ plink_fst <- function(bfile, output.prefix,
   
   checkmate::reportAssertions(assertions)
   
-  reg_dir <- tempfile(pattern = "reg")
-  file.create(conf_file <- tempfile())
+  reg_dir <- tempfile(pattern = "reg", tmpdir = tmp_dir)
+  on.exit(unlink(reg_dir, recursive = TRUE, force = TRUE))
+  file.create(conf_file <- tempfile(tmpdir = tmp_dir))
+  on.exit(unlink(conf_file, recursive = TRUE, force = TRUE))
   writeLines(sprintf("cluster.functions = batchtools::makeClusterFunctionsSocket(ncpus = %d)", num.threads), con = conf_file)
   ld_reg <- batchtools::makeRegistry(
     file.dir = reg_dir,
