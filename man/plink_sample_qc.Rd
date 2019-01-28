@@ -6,7 +6,8 @@
 \usage{
 plink_sample_qc(bfile, output.prefix, call.rate, het.sigma,
   ld.pruning.params, ..., bed.file = NULL, bim.file = NULL,
-  fam.file = NULL, exec = "plink2", num.threads, memory)
+  fam.file = NULL, exec = "plink2", tmp.dir = NULL, num.threads,
+  memory)
 }
 \arguments{
 \item{bfile}{[\code{string}]\cr
@@ -38,6 +39,9 @@ Alternative to \code{bfile} interface. Specify \code{bed}, \code{bim} and \code{
 
 \item{exec}{[\code{string}]\cr
 Path of PLINK executable.}
+
+\item{tmp.dir}{[\code{string}]\cr
+Path where to save temporary files. If not set by user, defaults to \code{tempdir()}.}
 
 \item{num.threads}{[\code{int}]\cr
 Number of CPUs usable by PLINK.
