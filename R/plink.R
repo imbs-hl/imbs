@@ -1106,10 +1106,12 @@ plink_rm_high_ld <- function(bfile, output.prefix,
 #'                           Filter out all variants with call rates falling below the provided threshold.
 #' @param min.maf            [\code{double}]\cr
 #'                           Filter out all variants with minor allele frequency below the provided threshold.
-#' @param max.maf            [\code{double}]\cr#'                           
+#' @param max.maf            [\code{double}]\cr                          
 #'                           Filter out all variants with minor allele frequency above the provided threshold.
 #' @param hwe.pval           [\code{double}]\cr
 #'                           Filter out all variants which have Hardy-Weinberg equilibrium exact test p-value below the provided threshold.
+#' @param mid.p              [\code{double}]\cr                          
+#'                           Apply the mid-p adjustment? See Details.
 #' @param ...                [\code{character}]\cr
 #'                           Additional arguments passed to PLINK.
 #' @param bed.file           [\code{string}]\cr
@@ -1127,7 +1129,10 @@ plink_rm_high_ld <- function(bfile, output.prefix,
 #'                           Memory for PLINK in Mb.
 #'                           Default is determined by minimum of SLURM environment variables \code{SLURM_MEM_PER_CPU} and \code{num.threads * SLURM_MEM_PER_NODE} and at least 5000.
 #'
-#' @details See PLINK manual \url{https://www.cog-genomics.org/plink/1.9/}.
+#' @details The 'mid.p' modifier applies the mid-p adjustment described in Graffelman J, Moreno V (2013). 
+#' The mid-p adjustment tends to bring the null rejection rate in line with the nominal p-value, and also reduces the filter's tendency to favor retention of variants with missing data. 
+#' PLINK recommends its use.
+#' See PLINK manual \url{https://www.cog-genomics.org/plink/1.9/}.
 #'
 #' @return Captured system output as \code{character} vector and number of markers excluded per criteria.
 #' @export
@@ -1135,7 +1140,7 @@ plink_rm_high_ld <- function(bfile, output.prefix,
 #' @import checkmate tools
 #'
 plink_marker_qc <- function(bfile, output.prefix, 
-                            call.rate, min.maf, max.maf, hwe.pval, ...,
+                            call.rate, min.maf, max.maf, hwe.pval, mid.p = TRUE, ...,
                             bed.file = NULL, bim.file = NULL, fam.file = NULL,
                             exec = "plink2",
                             num.threads,
@@ -1179,6 +1184,9 @@ plink_marker_qc <- function(bfile, output.prefix,
   if (!missing(hwe.pval)) {
     checkmate::assert_number(hwe.pval, lower = 0, upper = 1, finite = TRUE, null.ok = FALSE, add = assertions)
     hwe_pval <- sprintf("--hwe %g", hwe.pval)
+    if (mid.p) {
+      hwe_pval <- sprintf("%s midp", hwe_pval)
+    }
   } else {
     hwe_pval <- NULL
   }
