@@ -1996,7 +1996,7 @@ plink_fst <- function(bfile, output.prefix,
       evecs = evecs,
       evals = evals,
       ld_log = ld_log,
-      pca_log = pca_log
+      fst_log = fst_log
     )
   )
   
