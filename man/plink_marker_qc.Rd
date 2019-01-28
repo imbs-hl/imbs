@@ -5,8 +5,8 @@
 \title{Quality control on marker level with PLINK}
 \usage{
 plink_marker_qc(bfile, output.prefix, call.rate, min.maf, max.maf,
-  hwe.pval, ..., bed.file = NULL, bim.file = NULL, fam.file = NULL,
-  exec = "plink2", num.threads, memory)
+  hwe.pval, mid.p = TRUE, ..., bed.file = NULL, bim.file = NULL,
+  fam.file = NULL, exec = "plink2", num.threads, memory)
 }
 \arguments{
 \item{bfile}{[\code{string}]\cr
@@ -21,11 +21,14 @@ Filter out all variants with call rates falling below the provided threshold.}
 \item{min.maf}{[\code{double}]\cr
 Filter out all variants with minor allele frequency below the provided threshold.}
 
-\item{max.maf}{[\code{double}]\cr#'
+\item{max.maf}{[\code{double}]\cr
 Filter out all variants with minor allele frequency above the provided threshold.}
 
 \item{hwe.pval}{[\code{double}]\cr
 Filter out all variants which have Hardy-Weinberg equilibrium exact test p-value below the provided threshold.}
+
+\item{mid.p}{[\code{double}]\cr
+Apply the mid-p adjustment? See Details.}
 
 \item{...}{[\code{character}]\cr
 Additional arguments passed to PLINK.}
@@ -57,5 +60,8 @@ Captured system output as \code{character} vector and number of markers excluded
 Quality control on marker level with PLINK
 }
 \details{
+The 'mid.p' modifier applies the mid-p adjustment described in Graffelman J, Moreno V (2013). 
+The mid-p adjustment tends to bring the null rejection rate in line with the nominal p-value, and also reduces the filter's tendency to favor retention of variants with missing data. 
+PLINK recommends its use.
 See PLINK manual \url{https://www.cog-genomics.org/plink/1.9/}.
 }
