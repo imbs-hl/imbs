@@ -2030,8 +2030,7 @@ plink_fst <- function(bfile, output.prefix,
       outlier_evecs = outlier_evec_list,
       outlier_evals = outlier_eval_list,
       outlier_logs = outlier_log_list,
-      evecs = evecs,
-      evals = evals,
+      fst = fst,
       ld_log = ld_log,
       fst_log = fst_log
     )
