@@ -1,6 +1,6 @@
 ## RStudio aux files
 .Rbuildignore
 .Rproj.user
-
 ## MAC files
 **/.DS_Store
+.Rhistory
