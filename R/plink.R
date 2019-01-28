@@ -1080,7 +1080,7 @@ plink_rm_high_ld <- function(bfile, output.prefix,
   high_ld_regions[, SetID := sprintf("HiLD%d", .I)]
   
   high_ld_regions_file <- tempfile()
-  on.exit(unlink(high_ld_regions_file, recursive = TRUE, force = TRUE))
+  on.exit(unlink(high_ld_regions_file, recursive = TRUE, force = TRUE), add = TRUE)
   
   fwrite(high_ld_regions, high_ld_regions_file, sep = "\t", row.names = FALSE, col.names = FALSE)
   
@@ -1342,9 +1342,9 @@ plink_sample_qc <- function(bfile, output.prefix,
   checkmate::reportAssertions(assertions)
   
   reg_dir <- tempfile(pattern = "reg", tmpdir = tmp_dir)
-  on.exit(unlink(reg_dir, recursive = TRUE, force = TRUE))
+  on.exit(unlink(reg_dir, recursive = TRUE, force = TRUE), add = TRUE)
   file.create(conf_file <- tempfile(tmpdir = tmp_dir))
-  on.exit(unlink(conf_file, recursive = TRUE, force = TRUE))
+  on.exit(unlink(conf_file, recursive = TRUE, force = TRUE), add = TRUE)
   writeLines(sprintf("cluster.functions = batchtools::makeClusterFunctionsSocket(ncpus = %d)", num.threads), con = conf_file)
   ld_reg <- batchtools::makeRegistry(
     file.dir = reg_dir,
@@ -1643,9 +1643,9 @@ plink_pca <- function(bfile, output.prefix,
   checkmate::reportAssertions(assertions)
   
   reg_dir <- tempfile(pattern = "reg", tmpdir = tmp_dir)
-  on.exit(unlink(reg_dir, recursive = TRUE, force = TRUE))
+  on.exit(unlink(reg_dir, recursive = TRUE, force = TRUE), add = TRUE)
   file.create(conf_file <- tempfile(tmpdir = tmp_dir))
-  on.exit(unlink(conf_file, recursive = TRUE, force = TRUE))
+  on.exit(unlink(conf_file, recursive = TRUE, force = TRUE), add = TRUE)
   writeLines(sprintf("cluster.functions = batchtools::makeClusterFunctionsSocket(ncpus = %d)", num.threads), con = conf_file)
   ld_reg <- batchtools::makeRegistry(
     file.dir = reg_dir,
@@ -1898,9 +1898,9 @@ plink_fst <- function(bfile, output.prefix,
   checkmate::reportAssertions(assertions)
   
   reg_dir <- tempfile(pattern = "reg", tmpdir = tmp_dir)
-  on.exit(unlink(reg_dir, recursive = TRUE, force = TRUE))
+  on.exit(unlink(reg_dir, recursive = TRUE, force = TRUE), add = TRUE)
   file.create(conf_file <- tempfile(tmpdir = tmp_dir))
-  on.exit(unlink(conf_file, recursive = TRUE, force = TRUE))
+  on.exit(unlink(conf_file, recursive = TRUE, force = TRUE), add = TRUE)
   writeLines(sprintf("cluster.functions = batchtools::makeClusterFunctionsSocket(ncpus = %d)", num.threads), con = conf_file)
   ld_reg <- batchtools::makeRegistry(
     file.dir = reg_dir,
