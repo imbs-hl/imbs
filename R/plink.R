@@ -1262,6 +1262,8 @@ plink_marker_qc <- function(bfile, output.prefix,
 #'                           Alternative to \code{bfile} interface. Specify \code{bed}, \code{bim} and \code{fam} files individually.
 #' @param exec               [\code{string}]\cr
 #'                           Path of PLINK executable.
+#' @param tmp.dir            [\code{string}]\cr
+#'                           Path where to save temporary files. If not set by user, defaults to \code{tempdir()}.
 #' @param num.threads        [\code{int}]\cr
 #'                           Number of CPUs usable by PLINK.
 #'                           Default is determined by SLURM environment variables and at least 1.
@@ -1559,6 +1561,8 @@ plink_sample_qc <- function(bfile, output.prefix,
 #'                           Alternative to \code{bfile} interface. Specify \code{bed}, \code{bim} and \code{fam} files individually.
 #' @param exec               [\code{string}]\cr
 #'                           Path of PLINK executable.
+#' @param tmp.dir            [\code{string}]\cr
+#'                           Path where to save temporary files. If not set by user, defaults to \code{tempdir()}.
 #' @param num.threads        [\code{int}]\cr
 #'                           Number of CPUs usable by PLINK.
 #'                           Default is determined by SLURM environment variables and at least 1.
@@ -1811,6 +1815,8 @@ plink_pca <- function(bfile, output.prefix,
 #'                           Alternative to \code{bfile} interface. Specify \code{bed}, \code{bim} and \code{fam} files individually.
 #' @param exec               [\code{string}]\cr
 #'                           Path of PLINK executable.
+#' @param tmp.dir            [\code{string}]\cr
+#'                           Path where to save temporary files. If not set by user, defaults to \code{tempdir()}.
 #' @param num.threads        [\code{int}]\cr
 #'                           Number of CPUs usable by PLINK.
 #'                           Default is determined by SLURM environment variables and at least 1.
