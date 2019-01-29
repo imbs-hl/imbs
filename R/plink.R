@@ -1797,6 +1797,10 @@ plink_pca <- function(bfile, output.prefix,
 #'                           The basename of the new binary PLINK files.
 #' @param pop.file           [\code{string}]\cr
 #'                           File defining disjoint clusters/strata of samples. FIDs in the first column, IIDs in the second column, and cluster names in the third column.
+#' @param all.comb           [\code{flag}]\cr
+#'                           Indicate if all population combinations should be considered for Fst calculation.   
+#' @param with.na            [\code{flag}]\cr
+#'                           Indicate if samples with missing population identifier ('NA') should be considered as a valid population.
 #' @param outlier.removal    [\code{flag}]\cr
 #'                           Indicate if outliers shall be removed before final PCA computation.
 #' @param outlier.sigma      [\code{int}]\cr
@@ -1833,7 +1837,7 @@ plink_pca <- function(bfile, output.prefix,
 #' @importFrom batchtools makeRegistry reduceResultsList batchMap submitJobs waitForJobs
 #'
 plink_fst <- function(bfile, output.prefix, 
-                      pop.file, 
+                      pop.file, all.comb = TRUE, with.na = FALSE,
                       outlier.removal = FALSE, outlier.sigma, num.outlier.evec, num.outlier.iter,
                       ld.pruning.params,
                       bed.file = NULL, bim.file = NULL, fam.file = NULL,
@@ -1860,6 +1864,10 @@ plink_fst <- function(bfile, output.prefix,
   
   checkmate::assert_string(pop.file, add = assertions)
   checkmate::assert_file(pop.file, add = assertions)
+  
+  checkmate::assert_flag(all.comb, add = assertions)
+  
+  checkmate::assert_flag(with.na, add = assertions)
   
   checkmate::assert_flag(outlier.removal, add = assertions)
   if (outlier.removal) {
@@ -2014,15 +2022,68 @@ plink_fst <- function(bfile, output.prefix,
     
   }
   
-  fst_log <- .plink_fst(
-    bed.file = bed_file, bim.file = bim_file, fam.file = fam_file,
-    output.prefix = output.prefix, pop.file = pop.file,
-    rm.samples = sprintf("--remove %s", rm_samples_file), 
-    pruned.snps = sprintf("--extract %s", prune_in_file),
-    exec = exec, num.threads = num.threads, memory = memory
-  )
+  populations <- data.table::fread(pop.file, col.names = c("FID", "IID", "POP"))
   
-  fst <- data.table::fread(sprintf("%s.fst", output.prefix))
+  if (!with.na) {
+    populations <- populations[!is.na(POP)]
+  }
+  
+  num_populations <- populations[, length(unique(POP))]
+  
+  if (all.comb) {
+    
+    population_combinations <- unlist(
+      lapply(
+        X = 2:num_populations,
+        FUN = function(m) combn(unique(populations[, POP]), m = m, simplify = FALSE)
+      ),
+      recursive = FALSE
+    )
+    
+  } else {
+    
+    population_combinations <- list(populations[, (unique(POP))])
+    
+  }
+  
+  fst <- lapply(
+    X = population_combinations, 
+    FUN = function(pops) {
+      
+      pop_file <- tempfile(tmpdir = tmp.dir)
+      on.exit(unlink(pop_file), add = TRUE)
+      
+      data.table::fwrite(
+        x = populations[POP %in% pops],
+        pop_file, 
+        quote = FALSE, 
+        sep = "\t",
+        row.names = FALSE, 
+        col.names = FALSE
+      )
+      
+      if (with.na) {
+        
+        pop_file <- sprintf("%s keep-NA", pop_file)
+        
+      }
+      
+      fst_log <- .plink_fst(
+        bed.file = bed_file, bim.file = bim_file, fam.file = fam_file,
+        output.prefix = output.prefix, pop.file = pop.file,
+        rm.samples = sprintf("--remove %s", rm_samples_file), 
+        pruned.snps = sprintf("--extract %s", prune_in_file),
+        exec = exec, num.threads = num.threads, memory = memory
+      )
+      
+      fst <- data.table::fread(sprintf("%s.fst", output.prefix))
+      
+      return(list(
+        log = fst_log,
+        fst = fst
+      ))
+    }
+  )
   
   return(
     list(
@@ -2031,8 +2092,8 @@ plink_fst <- function(bfile, output.prefix,
       outlier_evals = outlier_eval_list,
       outlier_logs = outlier_log_list,
       fst = fst,
-      ld_log = ld_log,
-      fst_log = fst_log
+      population_combinations = population_combinations,
+      ld_log = ld_log
     )
   )
   

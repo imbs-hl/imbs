@@ -4,10 +4,11 @@
 \alias{plink_fst}
 \title{Fst with PLINK}
 \usage{
-plink_fst(bfile, output.prefix, pop.file, outlier.removal = FALSE,
-  outlier.sigma, num.outlier.evec, num.outlier.iter, ld.pruning.params,
-  bed.file = NULL, bim.file = NULL, fam.file = NULL,
-  exec = "plink2", tmp.dir = NULL, num.threads, memory)
+plink_fst(bfile, output.prefix, pop.file, all.comb = TRUE,
+  with.na = FALSE, outlier.removal = FALSE, outlier.sigma,
+  num.outlier.evec, num.outlier.iter, ld.pruning.params, bed.file = NULL,
+  bim.file = NULL, fam.file = NULL, exec = "plink2",
+  tmp.dir = NULL, num.threads, memory)
 }
 \arguments{
 \item{bfile}{[\code{string}]\cr
@@ -18,6 +19,12 @@ The basename of the new binary PLINK files.}
 
 \item{pop.file}{[\code{string}]\cr
 File defining disjoint clusters/strata of samples. FIDs in the first column, IIDs in the second column, and cluster names in the third column.}
+
+\item{all.comb}{[\code{flag}]\cr
+Indicate if all population combinations should be considered for Fst calculation.}
+
+\item{with.na}{[\code{flag}]\cr
+Indicate if samples with missing population identifier ('NA') should be considered as a valid population.}
 
 \item{outlier.removal}{[\code{flag}]\cr
 Indicate if outliers shall be removed before final PCA computation.}
