@@ -1905,13 +1905,13 @@ plink_fst <- function(bfile, output.prefix,
   
   checkmate::reportAssertions(assertions)
   
-  reg_dir <- tempfile(pattern = "reg", tmpdir = tmp_dir)
-  on.exit(unlink(reg_dir, recursive = TRUE, force = TRUE), add = TRUE)
+  ld_reg_dir <- tempfile(pattern = "reg", tmpdir = tmp_dir)
+  on.exit(unlink(ld_reg_dir, recursive = TRUE, force = TRUE), add = TRUE)
   file.create(conf_file <- tempfile(tmpdir = tmp_dir))
   on.exit(unlink(conf_file, recursive = TRUE, force = TRUE), add = TRUE)
   writeLines(sprintf("cluster.functions = batchtools::makeClusterFunctionsSocket(ncpus = %d)", num.threads), con = conf_file)
   ld_reg <- batchtools::makeRegistry(
-    file.dir = reg_dir,
+    file.dir = ld_reg_dir,
     work.dir = dirname(output.prefix),
     packages = c("imbs"),
     conf.file = conf_file
@@ -1947,7 +1947,7 @@ plink_fst <- function(bfile, output.prefix,
   batchtools::submitJobs(reg = ld_reg)
   
   if (!batchtools::waitForJobs(reg = ld_reg)) {
-    stop(sprintf("LD pruning failed! Check registry at %s", reg_dir))
+    stop(sprintf("LD pruning failed! Check registry at %s", ld_reg_dir))
   }
   
   ld_log <- batchtools::reduceResultsList(reg = ld_reg)
@@ -2046,12 +2046,32 @@ plink_fst <- function(bfile, output.prefix,
     
   }
   
-  fst <- lapply(
-    X = population_combinations, 
-    FUN = function(pops) {
-      
-      pop_file <- tempfile(tmpdir = tmp.dir)
+  fst_reg_dir <- tempfile(pattern = "reg", tmpdir = tmp_dir)
+  on.exit(unlink(fst_reg_dir, recursive = TRUE, force = TRUE), add = TRUE)
+  fst_reg <- batchtools::makeRegistry(
+    file.dir = fst_reg_dir,
+    work.dir = dirname(output.prefix),
+    packages = c("imbs"),
+    conf.file = conf_file
+  )
+  
+  batchtools::batchExport(
+    export = list(
+      tmp_dir = tmp_dir,
+      populations = populations,
+      with.na = with.na,
+      .plink_fst = .plink_fst
+    ),
+    reg = fst_reg
+  )
+  
+  batchtools::batchMap(
+    fun = function(pops, ...) {
+      pop_file <- tempfile(tmpdir = tmp_dir)
       on.exit(unlink(pop_file), add = TRUE)
+      
+      output_prefix <- tempfile(tmpdir = tmp_dir)
+      on.exit(file.remove(list.files(tmp_dir, pattern = basename(output_prefix), full.names = TRUE)), add = TRUE) 
       
       data.table::fwrite(
         x = populations[POP %in% pops],
@@ -2069,21 +2089,37 @@ plink_fst <- function(bfile, output.prefix,
       }
       
       fst_log <- .plink_fst(
-        bed.file = bed_file, bim.file = bim_file, fam.file = fam_file,
-        output.prefix = output.prefix, pop.file = pop.file,
-        rm.samples = sprintf("--remove %s", rm_samples_file), 
-        pruned.snps = sprintf("--extract %s", prune_in_file),
-        exec = exec, num.threads = num.threads, memory = memory
+        pop.file = pop_file, output.prefix = output_prefix, ...
       )
       
-      fst <- data.table::fread(sprintf("%s.fst", output.prefix))
+      fst <- data.table::fread(sprintf("%s.fst", output_prefix))
       
       return(list(
         log = fst_log,
         fst = fst
       ))
-    }
+    }, 
+    pops = population_combinations,
+    more.args = list(
+      bed.file = bed_file, 
+      bim.file = bim_file, 
+      fam.file = fam_file,
+      rm.samples = sprintf("--remove %s", rm_samples_file), 
+      pruned.snps = sprintf("--extract %s", prune_in_file),
+      exec = exec, 
+      num.threads = 1, 
+      memory = floor(memory/num.threads)
+    ),
+    reg = fst_reg
   )
+  
+  batchtools::submitJobs(reg = fst_reg)
+  
+  if (!batchtools::waitForJobs(reg = fst_reg)) {
+    stop(sprintf("Fst calculation failed! Check registry at %s", fst_reg_dir))
+  }
+  
+  fst <- batchtools::reduceResultsList(reg = fst_reg)
   
   return(
     list(
