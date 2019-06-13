@@ -146,6 +146,8 @@ harmonize_genotypes <- function(input, ref, output,
   } else {
     chr.filter <- ""
   }
+  checkmate::assertNumber(hwe.filter, lower = 0, upper = 1, finite = TRUE, null.ok = FALSe, add = assertions)
+  hwe.filter <- sprintf("--hweFilter %f", hwe.filter)
   checkmate::assertNumber(maf.filter, lower = 0, upper = 1, finite = TRUE, null.ok = FALSE, add = assertions)
   maf.filter <- sprintf("--mafFilter %f", maf.filter)
   if (!missing(sample.filter.list)) {
@@ -236,11 +238,11 @@ harmonize_genotypes <- function(input, ref, output,
                        variant.pos.filter.list,
                        ambiguous.snp.filter,
                        update.id, 
-                       min.ld , 
+                       min.ld, 
                        min.variants,
-                       variants ,
-                       check.ld ,
-                       maf.align , 
+                       variants,
+                       check.ld,
+                       maf.align, 
                        update.reference.allele))
   
 }
