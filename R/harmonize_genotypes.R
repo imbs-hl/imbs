@@ -146,7 +146,7 @@ harmonize_genotypes <- function(input, ref, output,
   } else {
     chr.filter <- ""
   }
-  checkmate::assertNumber(hwe.filter, lower = 0, upper = 1, finite = TRUE, null.ok = FALSe, add = assertions)
+  checkmate::assertNumber(hwe.filter, lower = 0, upper = 1, finite = TRUE, null.ok = FALSE, add = assertions)
   hwe.filter <- sprintf("--hweFilter %f", hwe.filter)
   checkmate::assertNumber(maf.filter, lower = 0, upper = 1, finite = TRUE, null.ok = FALSE, add = assertions)
   maf.filter <- sprintf("--mafFilter %f", maf.filter)
