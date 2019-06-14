@@ -652,7 +652,7 @@ plink_sex_imputation <- function(bfile, output.prefix,
 #'
 plink_merge_list <- function(bfile, output.prefix, 
                              merge.list, merge.mode, ...,
-                             bed.file = NULL, bim.file = NULL, fam.file = NULL,
+                             bed.file, bim.file, fam.file,
                              exec = "plink2",
                              num.threads,
                              memory) {
@@ -664,7 +664,7 @@ plink_merge_list <- function(bfile, output.prefix,
     checkmate::assert_file(sprintf("%s.bim", bfile), add = assertions)
     checkmate::assert_file(sprintf("%s.fam", bfile), add = assertions)
     input <- sprintf("--bfile %s", bfile)
-  } else {
+  } else if (!any(c(missing(bed.file), missing(bim.file), missing(fam.file)))) {
     checkmate::assert_file(bed.file, add = assertions)
     checkmate::assert_file(bim.file, add = assertions)
     checkmate::assert_file(fam.file, add = assertions)
