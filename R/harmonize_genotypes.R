@@ -61,8 +61,8 @@
 #'
 harmonize_genotypes <- function(input, ref, output,
                                 input.type, ref.type, output.type,
-                                input.prob = 0.4, force.chr, call.rate.filter = 0, chr.filter, hwe.filter = 1, maf.filter = 0, sample.filter.list, variant.filter.list, mach.r2.filter = 0, variant.pos.filter.list, ambiguous.snp.filter = FALSE,
-                                update.id = FALSE, min.ld = 0.3, min.variants = 3, variants = 100, check.ld = FALSE, maf.align = 0, update.reference.allele = FALSE,
+                                input.prob, force.chr, call.rate.filter , chr.filter, hwe.filter, maf.filter, sample.filter.list, variant.filter.list, mach.r2.filter, variant.pos.filter.list, ambiguous.snp.filter = FALSE,
+                                update.id = FALSE, min.ld, min.variants, variants, check.ld = FALSE, maf.align, update.reference.allele = FALSE,
                                 exec = "GenotypeHarmonizer") {
   
   input.types <- list(
@@ -130,26 +130,42 @@ harmonize_genotypes <- function(input, ref, output,
   }
   
   # Input filtering arguments ----
-  checkmate::assertNumber(input.prob, lower = 0, upper = 1, finite = TRUE, null.ok = FALSE, add = assertions)
-  input.prob <- sprintf("--inputProb %f", input.prob)
+  if (!missing(input.prob)) {
+    checkmate::assertNumber(input.prob, lower = 0, upper = 1, finite = TRUE, null.ok = FALSE, add = assertions)
+    input.prob <- sprintf("--inputProb %f", input.prob)
+  } else {
+    input.prob <- ""
+  }
   if (input.type %in% c("SHAPEIT2", "GEN")) {
     checkmate::assertChoice(as.character(force.chr), c(1:25, "X", "Y", "MT"), add = assertions)
     force.chr <- sprintf("--forceChr %s", as.character(force.chr))
   } else {
     force.chr <- ""
   }
-  checkmate::assertNumber(call.rate.filter, lower = 0, upper = 1, finite = TRUE, null.ok = FALSE, add = assertions)
-  call.rate.filter <- sprintf("--callRateFilter %f", call.rate.filter)
+  if (!missing(call.rate.filter)) {
+    checkmate::assertNumber(call.rate.filter, lower = 0, upper = 1, finite = TRUE, null.ok = FALSE, add = assertions)
+    call.rate.filter <- sprintf("--callRateFilter %f", call.rate.filter)
+  } else {
+    call.rate.filter <- ""
+  }
   if (!missing(chr.filter)) {
     checkmate::assertChoice(as.character(chr.filter), c(1:25, "X", "Y", "MT"), add = assertions)
     chr.filter <- sprintf("--chrFilter %s", as.character(chr.filter))
   } else {
     chr.filter <- ""
   }
-  checkmate::assertNumber(hwe.filter, lower = 0, upper = 1, finite = TRUE, null.ok = FALSE, add = assertions)
-  hwe.filter <- sprintf("--hweFilter %f", hwe.filter)
-  checkmate::assertNumber(maf.filter, lower = 0, upper = 1, finite = TRUE, null.ok = FALSE, add = assertions)
-  maf.filter <- sprintf("--mafFilter %f", maf.filter)
+  if (!missing(hwe.filter)) {
+    checkmate::assertNumber(hwe.filter, lower = 0, upper = 1, finite = TRUE, null.ok = FALSE, add = assertions)
+    hwe.filter <- sprintf("--hweFilter %f", hwe.filter)
+  } else {
+    hwe.filter <- ""
+  }
+  if (!missing(maf.filter)) {
+    checkmate::assertNumber(maf.filter, lower = 0, upper = 1, finite = TRUE, null.ok = FALSE, add = assertions)
+    maf.filter <- sprintf("--mafFilter %f", maf.filter)
+  } else {
+    maf.filter <- ""
+  }
   if (!missing(sample.filter.list)) {
     checkmate::assertFile(sample.filter.list, add = assertions)
     sample.filter.list <- sprintf("--sampleFilterList %s", sample.filter.list)
@@ -162,8 +178,12 @@ harmonize_genotypes <- function(input, ref, output,
   } else {
     variant.filter.list <- ""
   }
-  checkmate::assertNumber(mach.r2.filter, lower = 0, upper = 1, finite = TRUE, null.ok = FALSE, add = assertions)
-  mach.r2.filter <- sprintf("--machR2Filter %f", mach.r2.filter)
+  if (!missing(mach.r2.filter)) {
+    checkmate::assertNumber(mach.r2.filter, lower = 0, upper = 1, finite = TRUE, null.ok = FALSE, add = assertions)
+    mach.r2.filter <- sprintf("--machR2Filter %f", mach.r2.filter)
+  } else {
+    mach.r2.filter <- ""
+  }
   if (!missing(variant.pos.filter.list)) {
     checkmate::assertFile(variant.pos.filter.list, add = assertions)
     variant.pos.filter.list <- sprintf("--variantPosFilterList %s", variant.pos.filter.list)
@@ -184,20 +204,36 @@ harmonize_genotypes <- function(input, ref, output,
   } else {
     update.id <- ""
   }
-  checkmate::assertNumber(min.ld, lower = 0, upper = 1, finite = TRUE, null.ok = FALSE, add = assertions)
-  min.ld <- sprintf("--min-ld %f", min.ld)
-  checkmate::assertInt(min.variants, lower = 1, null.ok = FALSE, add = assertions)
-  min.variants <- sprintf("--min-variants %d", min.variants)
-  checkmate::assertInt(variants, lower = 1, null.ok = FALSE, add = assertions)
-  variants <- sprintf("--variants %d", variants)
+  if (!missing(min.ld)) {
+    checkmate::assertNumber(min.ld, lower = 0, upper = 1, finite = TRUE, null.ok = FALSE, add = assertions)
+    min.ld <- sprintf("--min-ld %f", min.ld)
+  } else {
+    min.ld <- ""
+  }
+  if (!missing(min.variants)) {
+    checkmate::assertInt(min.variants, lower = 1, null.ok = FALSE, add = assertions)
+    min.variants <- sprintf("--min-variants %d", min.variants)
+  } else {
+    min.variants <- ""
+  }
+  if (!missing(variants)) {
+    checkmate::assertInt(variants, lower = 1, null.ok = FALSE, add = assertions)
+    variants <- sprintf("--variants %d", variants)
+  } else {
+    variants <- ""
+  }
   checkmate::assertFlag(check.ld, add = assertions)
   if (check.ld) {
     check.ld <- "--check-ld"
   } else {
     check.ld <- ""
   }
-  checkmate::assertNumber(maf.align, lower = 0, upper = 1, finite = TRUE, null.ok = FALSE, add = assertions)
-  maf.align <- sprintf("--mafAlign %f", maf.align)
+  if (!missing(maf.align)) {
+    checkmate::assertNumber(maf.align, lower = 0, upper = 1, finite = TRUE, null.ok = FALSE, add = assertions)
+    maf.align <- sprintf("--mafAlign %f", maf.align)
+  } else {
+    maf.align <- ""
+  }
   checkmate::assertFlag(update.reference.allele, add = assertions)
   if (update.reference.allele) {
     update.reference.allele <- "--update-reference-allele"
