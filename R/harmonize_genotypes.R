@@ -53,6 +53,8 @@
 #'                                If there are not enough variants in LD and the minor allele frequency (MAF) of a variant <= the specified value in both study as in reference then the minor allele can be used as a backup for alignment. Defaults to \code{0}.
 #' @param update.reference.allele [\code{flag}]\cr
 #'                                Make sure the output data uses the same reference allele as the reference data set.
+#' @param keep                    [\code{flag}]\cr
+#'                                Keep variants in input file if not present in reference file.
 #' @param exec                    [\code{string}]\cr
 #'                                Path of \code{GenotypeHarmonizer} executable. You can also give a \code{JAVA} call: \code{java -Xmx5g -jar <path/to/GenotypeHarmonizer.jar>}.
 #'
@@ -63,6 +65,7 @@ harmonize_genotypes <- function(input, ref, output,
                                 input.type, ref.type, output.type,
                                 input.prob, force.chr, call.rate.filter , chr.filter, hwe.filter, maf.filter, sample.filter.list, variant.filter.list, mach.r2.filter, variant.pos.filter.list, ambiguous.snp.filter = FALSE,
                                 update.id = FALSE, min.ld, min.variants, variants, check.ld = FALSE, maf.align, update.reference.allele = FALSE,
+                                keep = FALSE,
                                 exec = "GenotypeHarmonizer") {
   
   input.types <- list(
@@ -240,6 +243,12 @@ harmonize_genotypes <- function(input, ref, output,
   } else {
     update.reference.allele <- ""
   }
+  checkmate::assertFlag(keep, add = assertions)
+  if (keep) {
+    keep <- "--keep"
+  } else {
+    keep <- ""
+  }
   
   if (grepl("java", exec)) {
     exec <- unlist(strsplit(exec, " "))
@@ -279,6 +288,8 @@ harmonize_genotypes <- function(input, ref, output,
                        variants,
                        check.ld,
                        maf.align, 
-                       update.reference.allele))
+                       update.reference.allele,
+                       keep)
+  )
   
 }
