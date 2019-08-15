@@ -1745,6 +1745,11 @@ plink_pca <- function(bfile, output.prefix,
       outlier_samples <- unique(evecs[which(RM), .(FID, IID)])
       outlier_samples_list[[i]] <- outlier_samples
       
+      if (length(outlier_samples) <= 1) {
+        # no more outliers, exit loop early
+        break
+      }
+      
       data.table::fwrite(
         outlier_samples, 
         file = rm_samples_file, 
@@ -2007,6 +2012,11 @@ plink_fst <- function(bfile, output.prefix,
       
       outlier_samples <- unique(evecs[which(RM), .(FID, IID)])
       outlier_samples_list[[i]] <- outlier_samples
+      
+      if (length(outlier_samples) <= 1) {
+        # no more outliers, exit loop early
+        break
+      }
       
       data.table::fwrite(
         outlier_samples, 
