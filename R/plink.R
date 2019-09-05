@@ -2227,6 +2227,8 @@ plink_logistic <- function(bfile, output.prefix,
     } else {
       sex <- "no-x-sex"
     }
+  } else {
+    sex <- ""
   }
   if (!missing(beta)) {
     checkmate::assert_flag(beta, na.ok = FALSE, null.ok = FALSE, add = assertions)
@@ -2235,6 +2237,8 @@ plink_logistic <- function(bfile, output.prefix,
     } else {
       beta <- ""
     }
+  } else {
+    beta <- ""
   }
   if (!missing(intercept)) {
     checkmate::assert_flag(intercept, na.ok = FALSE, null.ok = FALSE, add = assertions)
@@ -2243,6 +2247,8 @@ plink_logistic <- function(bfile, output.prefix,
     } else {
       intercept <- ""
     }
+  } else {
+    intercept <- ""
   }
   
     assert_command(exec, add = assertions)
