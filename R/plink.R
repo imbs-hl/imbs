@@ -2146,3 +2146,137 @@ plink_fst <- function(bfile, output.prefix,
   )
   
 }
+
+#' GWA (single variant logistic regression) with PLINK
+#'
+#' @param bfile              [\code{string}]\cr
+#'                           The basename of the binary PLINK files.
+#' @param output.prefix      [\code{string}]\cr
+#'                           The basename of the new binary PLINK files.
+#' @param test               [\code{string}]\cr
+#'                           Genetic model to use. Choices are 'genotypic', 'hethom', 'dominant', and 'recessive'.
+#'                           The 'genotypic' modifier adds an additive effect/dominance deviation 2df joint test (with two genotype-dependent variables in the regression, one with 0/1/2 coding and the second with 0/1/0 coding), while 'hethom' uses 0/0/1 and 0/1/0 coding instead. 
+#'                           The 'dominant' and 'recessive' modifiers specify a model assuming full dominance or recessiveness, respectively, for the A1 allele.
+#' @param sex                [\code{flag}]\cr
+#'                           Include sex as covariate?
+#' @param beta               [\code{flag}]\cr
+#'                           Output regression coefficients instead of OR?
+#' @param intercept          [\code{flag}]\cr
+#'                           Include intercept in output?
+#' @param ...                [\code{character}]\cr
+#'                           Additional arguments passed to PLINK call.
+#' @param bed.file           [\code{string}]\cr
+#'                           Alternative to \code{bfile} interface. Specify \code{bed}, \code{bim} and \code{fam} files individually.
+#' @param bim.file           [\code{string}]\cr
+#'                           Alternative to \code{bfile} interface. Specify \code{bed}, \code{bim} and \code{fam} files individually.
+#' @param fam.file           [\code{string}]\cr
+#'                           Alternative to \code{bfile} interface. Specify \code{bed}, \code{bim} and \code{fam} files individually.
+#' @param exec               [\code{string}]\cr
+#'                           Path of PLINK executable.
+#' @param tmp.dir            [\code{string}]\cr
+#'                           Path where to save temporary files. If not set by user, defaults to \code{tempdir()}.
+#' @param num.threads        [\code{int}]\cr
+#'                           Number of CPUs usable by PLINK.
+#'                           Default is determined by SLURM environment variables and at least 1.
+#' @param memory             [\code{int}]\cr
+#'                           Memory for PLINK in Mb.
+#'                           Default is determined by minimum of SLURM environment variables \code{SLURM_MEM_PER_CPU} and \code{num.threads * SLURM_MEM_PER_NODE} and at least 5000.
+#'
+#' @details Performs logistic regression given a case/control phenotype. For details see PLINK manual.
+#'
+#' @return A \code{list} of log (\code{gwa_log}, as \code{character}) and regression results (\code{gwa_result}, as \code{data.table}).
+#' @export
+#' 
+#' @import checkmate tools data.table
+#'
+plink_logistic <- function(bfile, output.prefix,
+                           test, sex, beta, intercept,
+                           ...,
+                           bed.file = NULL, bim.file = NULL, fam.file = NULL,
+                           exec = "plink2",
+                           num.threads,
+                           memory) {
+  
+  assertions <- checkmate::makeAssertCollection()
+  
+  if (!missing(bfile)) {
+    checkmate::assert_file(bed_file <- sprintf("%s.bed", bfile), add = assertions)
+    checkmate::assert_file(bim_file <- sprintf("%s.bim", bfile), add = assertions)
+    checkmate::assert_file(fam_file <- sprintf("%s.fam", bfile), add = assertions)
+    input <- sprintf("--bfile %s", bfile)
+  } else {
+    checkmate::assert_file(bed_file <- bed.file, add = assertions)
+    checkmate::assert_file(bim_file <- bim.file, add = assertions)
+    checkmate::assert_file(fam_file <- fam.file, add = assertions)
+    input <- sprintf("--bed %s --bim %s --fam %s", bed.file, bim.file, fam.file)
+  }
+  
+  checkmate::assert_string(output.prefix, add = assertions)
+  checkmate::assert_directory(dirname(output.prefix), add = assertions)
+  
+  if (!missing(test)) {
+    checkmate::assert_choice(test, choices = c("genotypic", "hethom", "dominant", "recessive"), null.ok = FALSE, add = assertions)
+    test <- sprintf("%s", test)
+  } else {
+    test <- ""
+  }
+  if (!missing(sex)) {
+    checkmate::assert_flag(sex, na.ok = FALSE, null.ok = FALSE, add = assertions)
+    if (sex) {
+      sex <- "sex"
+    } else {
+      sex <- "no-x-sex"
+    }
+  }
+  if (!missing(beta)) {
+    checkmate::assert_flag(beta, na.ok = FALSE, null.ok = FALSE, add = assertions)
+    if (beta) {
+      beta <- "beta"
+    } else {
+      beta <- ""
+    }
+  }
+  if (!missing(intercept)) {
+    checkmate::assert_flag(intercept, na.ok = FALSE, null.ok = FALSE, add = assertions)
+    if (intercept) {
+      intercept <- "intercept"
+    } else {
+      intercept <- ""
+    }
+  }
+  
+    assert_command(exec, add = assertions)
+  
+  if (missing(num.threads)) {     
+    num.threads <- max(1, as.integer(Sys.getenv("SLURM_CPUS_PER_TASK")), na.rm = TRUE)   
+  }   
+  checkmate::assert_int(num.threads, lower = 1, add = assertions)
+  if (missing(memory)) {     
+    memory = max(5000,                   
+                 -min(-(as.integer(Sys.getenv("SLURM_MEM_PER_NODE")) - 1000),                       
+                      -(num.threads * as.integer(Sys.getenv("SLURM_MEM_PER_CPU")) - 1000), na.rm = TRUE),                   
+                 na.rm = TRUE)   
+  }   
+  checkmate::assert_int(memory, lower = 1000, add = assertions)
+  
+  checkmate::reportAssertions(assertions)
+  
+  gwa_log <- system_call(
+    bin = exec,
+    args = c(input,
+             "--threads", num.threads,
+             "--memory", memory,
+             "--logistic", test, sex, beta, intercept,
+             "--out", output.prefix, ...)
+  )
+  
+  gwa_result <- data.table::fread(file = sprintf("%s..assoc.logistic", output.prefix))
+  
+  return(
+    list(
+      gwa_log = gwa_log,
+      gwa_result = gwa_result
+    )
+  )
+  
+}
