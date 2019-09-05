@@ -5,8 +5,7 @@
 \title{Merge multiple PLINK datasets}
 \usage{
 plink_merge_list(bfile, output.prefix, merge.list, merge.mode, ...,
-  bed.file = NULL, bim.file = NULL, fam.file = NULL,
-  exec = "plink2", num.threads, memory)
+  bed.file, bim.file, fam.file, exec = "plink2", num.threads, memory)
 }
 \arguments{
 \item{bfile}{[\code{string}]\cr

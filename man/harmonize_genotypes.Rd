@@ -5,12 +5,11 @@
 \title{Genotype harmonization}
 \usage{
 harmonize_genotypes(input, ref, output, input.type, ref.type, output.type,
-  input.prob = 0.4, force.chr, call.rate.filter = 0, chr.filter,
-  hwe.filter = 1, maf.filter = 0, sample.filter.list,
-  variant.filter.list, mach.r2.filter = 0, variant.pos.filter.list,
-  ambiguous.snp.filter = FALSE, update.id = FALSE, min.ld = 0.3,
-  min.variants = 3, variants = 100, check.ld = FALSE,
-  maf.align = 0, update.reference.allele = FALSE,
+  input.prob, force.chr, call.rate.filter, chr.filter, hwe.filter,
+  maf.filter, sample.filter.list, variant.filter.list, mach.r2.filter,
+  variant.pos.filter.list, ambiguous.snp.filter = FALSE,
+  update.id = FALSE, min.ld, min.variants, variants, check.ld = FALSE,
+  maf.align, update.reference.allele = FALSE, keep = FALSE,
   exec = "GenotypeHarmonizer")
 }
 \arguments{
@@ -85,6 +84,9 @@ If there are not enough variants in LD and the minor allele frequency (MAF) of a
 
 \item{update.reference.allele}{[\code{flag}]\cr
 Make sure the output data uses the same reference allele as the reference data set.}
+
+\item{keep}{[\code{flag}]\cr
+Keep variants in input file if not present in reference file.}
 
 \item{exec}{[\code{string}]\cr
 Path of \code{GenotypeHarmonizer} executable. You can also give a \code{JAVA} call: \code{java -Xmx5g -jar <path/to/GenotypeHarmonizer.jar>}.}
