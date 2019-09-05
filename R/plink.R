@@ -2276,7 +2276,7 @@ plink_logistic <- function(bfile, output.prefix,
              "--out", output.prefix, ...)
   )
   
-  gwa_result <- data.table::fread(file = sprintf("%s..assoc.logistic", output.prefix))
+  gwa_result <- data.table::fread(file = sprintf("%s.assoc.logistic", output.prefix))
   
   return(
     list(
